@@ -25,7 +25,7 @@ fi
 TOP_STASH=$(git stash list | head -1)
 if [[ $TOP_STASH =~ ${STASH_NAME} ]]; then
     # Return to original state.
-    git stash pop --quiet --index
+    git stash apply --quiet --index # TODO Change this to pop when are sure all is OK
 fi
 
 # Deal with the return value:

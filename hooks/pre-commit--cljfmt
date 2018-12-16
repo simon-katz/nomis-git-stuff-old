@@ -29,7 +29,7 @@ if [[ $TOP_STASH =~ ${STASH_NAME} ]]; then
     # We do a hard reset first to avoid conflicts when a file has both staged
     # and unstaged changes.
     git reset --quiet --hard
-    git stash pop --quiet --index
+    git stash apply --quiet --index # TODO Change this to pop when are sure all is OK
 fi
 
 # Deal with the return value:
