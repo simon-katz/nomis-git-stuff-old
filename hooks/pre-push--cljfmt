@@ -1,6 +1,6 @@
 #!/bin/bash
 
-STASH_NAME=created-by-pre-commit-hook-$(date "+%Y-%m-%d-%H-%M-%S")
+STASH_NAME=pre-cljfmt-for-push--$(date "+%Y-%m-%d-%H-%M-%S")
 
 # Stash everything temporarily. Keep staged files. Note that this doesn't
 # create a stash if there are no changes.
