@@ -10,7 +10,7 @@ git stash push \
     --include-untracked \
     --message "${STASH_NAME}"
 
-# Do the checks and let the user know about any falure:
+# Do the checks and let the user know about any failure:
 echo -n "Checking formatting..."
 lein cljfmt check > /dev/null 2>&1
 return_code=$?
