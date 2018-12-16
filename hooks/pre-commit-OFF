@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+    against=HEAD
+else
+    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+bad_regexes="####
+@@@@
+!!!!
+debug"
+
+diff_opts="--no-color -U0 --staged"
+
+bad_text_found_p=""
+
+for FILE in `git diff-index --cached --name-status $against -- | cut -c3-` ; do
+    while read -r bad_regex; do
+        if git diff $diff_opts $FILE \
+           | grep ^+ | grep -v ^+++ | grep -i "$bad_regex"
+        then
+            echo ==== Not committing because $FILE contains \"$bad_regex\"
+            bad_text_found_p="true"
+        fi
+    done <<< "$bad_regexes"
+done
+
+if [ $bad_text_found_p ]
+then
+    exit 1
+fi
+
+exit 0
