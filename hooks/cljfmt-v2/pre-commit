@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "In pre-commit hook"
+echo "GIT_DIR =" ${GIT_DIR}
+
+#### Stash everything temporarily. Keep staged files.
+#### Note that this doesn't create a stash if there are no changes.
+
+git stash push \
+    --quiet \
+    --keep-index \
+    --include-untracked \
+    --message "_pre-cljfmt-for-commit"
+
+echo "Done pre-commit hook"

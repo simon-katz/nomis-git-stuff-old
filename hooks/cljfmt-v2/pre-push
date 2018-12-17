@@ -1,0 +1,35 @@
+#!/bin/bash
+
+STASH_NAME=_$(date "+%Y-%m-%d-%H-%M-%S")--pre-cljfmt-for-push
+
+# Stash everything temporarily. Keep staged files. Note that this doesn't
+# create a stash if there are no changes.
+git stash push \
+    --quiet \
+    --include-untracked \
+    --message "${STASH_NAME}"
+
+# Do the checks and let the user know about any failure:
+echo -n "Checking formatting..."
+lein cljfmt check > /dev/null 2>&1
+return_code=$?
+if [ $return_code -ne 0 ]
+then
+    echo "BAD FORMATTING."
+    echo "ERROR: cljfmt returned a non-zero exit status -- cannot push."
+else
+    echo "OK."
+fi
+
+# If we created a stash, pop it:
+TOP_STASH=$(git stash list | head -1)
+if [[ $TOP_STASH =~ ${STASH_NAME} ]]; then
+    # Return to original state.
+    git stash apply --quiet --index # TODO Change this to pop when are sure all is OK
+fi
+
+# Deal with the return value:
+if [ $return_code -ne 0 ]
+then
+    exit 1
+fi
