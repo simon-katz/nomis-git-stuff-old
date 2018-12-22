@@ -7,45 +7,40 @@ NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION=".git/nomis-post-avoid-infinite-recur
 
 THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
 
-if [ -f ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION} ]; then
-    :
-else
+if [ ! -f ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION} ]; then
     touch ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION}
-    if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
+    if [[ $(git log --format=%s -n 1) == apply-local-formatting* \
+              || $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]]; then
         :
     else
-        if [[ $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]]; then
-            :
-        else
-            # Reformat and apply any changes:
-            echo "Checking and fixing formatting and committing"
-            lein cljfmt fix > /dev/null 2>&1
-            WERE_CHANGES_MADE_P=$?
-            git add .
-            git commit --no-verify --allow-empty -m "apply-cljfmt-formatting"
-            echo "Done checking etc"
-            git reset --soft HEAD~3
-            git add .
-            git commit -C ${THE_USER_COMMIT_SHA}
+        # Reformat and apply any changes:
+        echo "Checking and fixing formatting and committing"
+        lein cljfmt fix > /dev/null 2>&1
+        WERE_CHANGES_MADE_P=$?
+        git add .
+        git commit --no-verify --allow-empty -m "apply-cljfmt-formatting"
+        echo "Done checking etc"
+        git reset --soft HEAD~3
+        git add .
+        git commit -C ${THE_USER_COMMIT_SHA}
 
-            # TODO Now we want to set the state back to what it was at the start.
-            # git log --format=%s -n 2 | tail -1
-            # if that's "apply-local-formatting"
-            # - squash last two commits
-            # - Do the reset if we can
-            # - and apply top stash
+        # TODO Now we want to set the state back to what it was at the start.
+        # git log --format=%s -n 2 | tail -1
+        # if that's "apply-local-formatting"
+        # - squash last two commits
+        # - Do the reset if we can
+        # - and apply top stash
 
-            #### commit --no-verify --quiet -m "apply-local-formatting"
+        #### commit --no-verify --quiet -m "apply-local-formatting"
 
-            # TOP_STASH=$(git stash list | head -1)
-            # if [[ $TOP_STASH =~ "_pre-cljfmt-for-commit" ]]; then
-            #     # Return to original state.
-            #     # We do a hard reset first to avoid conflicts when a file has both staged
-            #     # and unstaged changes.
-            #     git reset --quiet --hard
-            #     git stash pop --quiet --index
-            # fi
-        fi
+        # TOP_STASH=$(git stash list | head -1)
+        # if [[ $TOP_STASH =~ "_pre-cljfmt-for-commit" ]]; then
+        #     # Return to original state.
+        #     # We do a hard reset first to avoid conflicts when a file has both staged
+        #     # and unstaged changes.
+        #     git reset --quiet --hard
+        #     git stash pop --quiet --index
+        # fi
     fi
     rm ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION}
 fi

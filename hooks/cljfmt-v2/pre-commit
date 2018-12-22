@@ -17,13 +17,13 @@ git stash push \
 
 
 
-
-if [[ $(git log --format=%s -n 1) != apply-local-formatting* ]]; then
-    # For now, just think about what to do when we have
-    # "apply-local-formatting".
-    echo "Current commit is apply-local-formatting"
+if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
+    # TODO Check that commit is not pushed, because in that case what
+    #      should we do?
+    :
 else
-    touch .git/nomis-200-pre-commit-current-commit-is-apply-local-formatting
+    # TODO Apply cljfmt formatting.
+    :
 fi
 
 
