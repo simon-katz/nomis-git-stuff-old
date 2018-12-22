@@ -25,7 +25,8 @@ else
             touch .git/nomis-200-post-commit-it-was-not-apply-local-formatting
         else
             touch .git/nomis-200-post-commit-it-was-apply-local-formatting
-            # Reformat and stage any changes:
+
+            # Reformat and apply any changes:
             echo "Checking and fixing formatting and committing"
             lein cljfmt fix > /dev/null 2>&1
             WERE_CHANGES_MADE_P=$?
@@ -35,6 +36,7 @@ else
             git reset --soft HEAD~3
             git add .
             git commit -C ${THE_USER_COMMIT_SHA}
+
             # TODO Now we want to set the state back to what it was at the start.
             # git log --format=%s -n 2 | tail -1
             # if that's "apply-local-formatting"
