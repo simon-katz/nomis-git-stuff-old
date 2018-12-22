@@ -7,6 +7,8 @@ echo "GIT_DIR =" ${GIT_DIR}
 
 NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION=".git/nomis-post-avoid-infinite-recursion"
 
+THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
+
 if [ -f ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION} ]; then
     touch .git/nomis-110-post-commit-lock-file-exists
     #### Don't recurse infinitely
@@ -30,11 +32,9 @@ else
             git add .
             git commit --no-verify --allow-empty -m "apply-cljfmt-formatting"
             echo "Done checking etc"
-            # TODO If commit HEAD~2 is apply-local-formatting
-            #      then combine the previous three commits
-            #           using the second commit's subject and body.
-            git reset --soft HEAD~3 &&
-                git commit --edit -m"$(git log --format=%B --reverse HEAD..HEAD@{2})"
+            git reset --soft HEAD~3
+            git add .
+            git commit --edit -C ${THE_USER_COMMIT_SHA}
             # TODO Now we want to set the state back to what it was at the start.
             # git log --format=%s -n 2 | tail -1
             # if that's "apply-local-formatting"

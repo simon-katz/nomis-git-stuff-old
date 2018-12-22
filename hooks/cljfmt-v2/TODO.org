@@ -1,5 +1,6 @@
 * cljfmt-v2
-** Send error output to stderr
+** Send error echo output to stderr
+** Deal with errors
 ** Stash everything, keeping staged changes
 ** Consider using tags or branches for the tool's work (rather than commits)
 ** Work out how to deal with nested calls to the hooks
