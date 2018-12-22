@@ -1,30 +1,34 @@
 #!/bin/bash
 
-echo "In pre-commit hook"
-echo "GIT_DIR =" ${GIT_DIR}
+NOMIS_IN_POST_COMMIT_HOOK=".git/nomis-in-post-commit-hook"
 
+if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
+    #### Stash everything temporarily. Keep staged files.
+    #### Note that this only creates a stash if there are changes.
 
-#### Stash everything temporarily. Keep staged files.
-#### Note that this doesn't create a stash if there are no changes.
+    #### TODO Take a closer look at these stashes. They seem to delete many files.
 
-#### TODO Take a closer look at these commits. They seem to delete many files.
+    #### Stash the worktree and untracked files, and the index. Hmmm.
+    git stash push \
+        --quiet \
+        --keep-index \
+        --include-untracked \
+        --message "_created-by-pre-commit-hook"
 
-git stash push \
-    --quiet \
-    --keep-index \
-    --include-untracked \
-    --message "_created-by-pre-commit-hook"
+    #### Stash the worktree and untracked files, but not the index.
+    # git commit -m '_nomis-temp-to-allow-stashing-of-unstaged-changes'
+    # git stash push \
+    #     --quiet \
+    #     --include-untracked \
+    #     --message "_created-by-pre-commit-hook"
+    # git reset --soft HEAD^
 
-
-
-if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
-    # TODO Check that commit is not pushed, because in that case what
-    #      should we do?
-    :
-else
-    # TODO Apply cljfmt formatting.
-    :
+    if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
+        # TODO Check that commit is not pushed, because in that case what
+        #      should we do?
+        :
+    else
+        # TODO Apply cljfmt formatting.
+        :
+    fi
 fi
-
-
-echo "Done pre-commit hook"
