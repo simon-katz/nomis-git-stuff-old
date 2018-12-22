@@ -7,6 +7,8 @@ echo "GIT_DIR =" ${GIT_DIR}
 #### Stash everything temporarily. Keep staged files.
 #### Note that this doesn't create a stash if there are no changes.
 
+#### TODO Take a closer look at these commits. They seem to delete many files.
+
 git stash push \
     --quiet \
     --keep-index \
