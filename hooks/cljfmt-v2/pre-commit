@@ -3,6 +3,7 @@
 echo "In pre-commit hook"
 echo "GIT_DIR =" ${GIT_DIR}
 
+
 #### Stash everything temporarily. Keep staged files.
 #### Note that this doesn't create a stash if there are no changes.
 
@@ -10,6 +11,18 @@ git stash push \
     --quiet \
     --keep-index \
     --include-untracked \
-    --message "_pre-cljfmt-for-commit"
+    --message "_created-by-pre-commit-hook"
+
+
+
+
+if [[ $(git log --format=%s -n 1) != apply-local-formatting* ]]; then
+    # For now, just think about what to do when we have
+    # "apply-local-formatting".
+    echo "Current commit is apply-local-formatting"
+else
+    touch .git/nomis-200-pre-commit-current-commit-is-apply-local-formatting
+fi
+
 
 echo "Done pre-commit hook"

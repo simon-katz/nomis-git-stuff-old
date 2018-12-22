@@ -1,0 +1,42 @@
+* cljfmt-v2
+** Send error output to stderr
+** Stash everything, keeping staged changes
+** Consider using tags or branches for the tool's work (rather than commits)
+** Work out how to deal with nested calls to the hooks
+*** Something non-flaky
+** Scenarios to deal with
+*** A table
+| Current commit           | Repo state | Action |
+|--------------------------+------------+--------|
+| "apply-local-formatting" | Clean      |        |
+| "apply-local-formatting" | Dirty      |        |
+| Something else           | Clean      |        |
+| Something else           | Dirty      |        |
+|--------------------------+------------+--------|
+*** Details
+**** In pre-push hook
+***** Check that no un-pushed commit is "apply-local-formatting"
+**** In pre-commit hook
+***** If current commit is "apply-local-formatting"
+****** Check that the commit is not pushed
+***** If current commit is not "apply-local-formatting"
+****** Apply cljfmt formatting
+**** In post-commit hook
+***** If we are not in a recursive call of this hook
+****** If HEAD~1 commit is "apply-local-formatting"
+******* Assert that HEAD~1 is not pushed
+******** (maybe; this was checked in pre-commit hook)
+******* Replace HEAD~1 with a cljfmt-version of current files
+******** Apply cljfmt formatting
+******** Stage and commit the changes
+git add .
+git commit --no-verify --allow-empty -m "apply-cljfmt-formatting"
+******** Combine the previous 3 commits
+        git reset --soft HEAD~3 &&
+            git commit --edit -m"$(git log --format=%B --reverse HEAD..HEAD@{1})"
+******* Set files and git status to as they were
+******** Is this possible?
+********* I think you can set worktree with this:
+********** git checkout [<tree-ish>] [--] <pathspec>...
+********** But can't distinguish untracked files, I think
+******* Create an "apply-local-formatting" commit

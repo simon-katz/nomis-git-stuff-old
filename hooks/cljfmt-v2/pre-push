@@ -2,6 +2,15 @@
 
 STASH_NAME=_$(date "+%Y-%m-%d-%H-%M-%S")--pre-cljfmt-for-push
 
+
+# Check that the current commit is not "apply-local-formatting".
+# TODO - Need to check all un-pushed commits.
+if [[ $(git log --format=%s -n 1) != apply-local-formatting* ]]; then
+    echo "Currently only dealing with apply-local-formatting"
+    exit 1
+fi
+
+
 # Stash everything temporarily. Keep staged files. Note that this doesn't
 # create a stash if there are no changes.
 git stash push \
