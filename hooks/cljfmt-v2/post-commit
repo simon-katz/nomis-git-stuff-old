@@ -34,7 +34,7 @@ else
             echo "Done checking etc"
             git reset --soft HEAD~3
             git add .
-            git commit --edit -C ${THE_USER_COMMIT_SHA}
+            git commit -C ${THE_USER_COMMIT_SHA}
             # TODO Now we want to set the state back to what it was at the start.
             # git log --format=%s -n 2 | tail -1
             # if that's "apply-local-formatting"
