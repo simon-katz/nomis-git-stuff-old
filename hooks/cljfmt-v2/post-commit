@@ -1,7 +1,5 @@
 #!/bin/bash
 
-touch .git/nomis-100-post-commit-entered
-
 echo "In post-commit hook"
 echo "GIT_DIR =" ${GIT_DIR}
 
@@ -10,22 +8,15 @@ NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION=".git/nomis-post-avoid-infinite-recur
 THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
 
 if [ -f ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION} ]; then
-    touch .git/nomis-110-post-commit-lock-file-exists
-    #### Don't recurse infinitely
-    #### commit --no-verify --quiet -m "apply-local-formatting"
+    :
 else
     touch ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION}
-    touch .git/nomis-500-post-commit-lock-file-does-not-exist
     if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
-        touch .git/nomis-200-post-commit-current-commit-is-apply-local-formatting
+        :
     else
-        touch .git/nomis-300-NOT-current-commit-is-apply-local-formatting
-        #### If previous commit was "apply-local-formatting", ...
         if [[ $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]]; then
-            touch .git/nomis-200-post-commit-it-was-not-apply-local-formatting
+            :
         else
-            touch .git/nomis-200-post-commit-it-was-apply-local-formatting
-
             # Reformat and apply any changes:
             echo "Checking and fixing formatting and committing"
             lein cljfmt fix > /dev/null 2>&1
@@ -44,6 +35,8 @@ else
             # - Do the reset if we can
             # - and apply top stash
 
+            #### commit --no-verify --quiet -m "apply-local-formatting"
+
             # TOP_STASH=$(git stash list | head -1)
             # if [[ $TOP_STASH =~ "_pre-cljfmt-for-commit" ]]; then
             #     # Return to original state.
@@ -56,4 +49,3 @@ else
     fi
     rm ${NOMIS_POST_COMMIT_AVOID_INFINITE_RECURSION}
 fi
-touch .git/nomis-999-post-commit-exited
