@@ -1,4 +1,8 @@
 * cljfmt-v2
+** Ah, you only need to check the changed files
+*** I think you can provide cljfmt with a list of files to check
+**** Check this
+*** See the pre-commit-OFF example for how to get a list of changed files
 ** Consider removing the v1 stuff so that you don't have to maintain something you don't use
 *** No, don't do that
 **** Want something simple for many people
