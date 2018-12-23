@@ -1,16 +1,9 @@
 #!/bin/bash
 
-if [ -f .git/_nomis-doing-post-commit-rewriting ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
+if [ -f .git/_nomis-doing-post-commit-rewriting ]; then
     echo '**** pre-commit hook: We are in nested hooks. You should use --no-verify.'
-else
-    #### TODO Check that top stash is not '_nomis-temp-to-allow-stashing-of-unstaged-changes' -- after you do the tidying up to get rid of it.
-
-    if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
-        # TODO Check that commit is not pushed, because in that case what
-        #      should we do?
-        :
-    else
-        # TODO Apply cljfmt formatting.
-        :
-    fi
+elif [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
+    # TODO Check that commit is not pushed, because in that case what
+    #      should we do?
+    :
 fi

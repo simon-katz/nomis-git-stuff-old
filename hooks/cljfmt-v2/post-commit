@@ -55,6 +55,3 @@ else
     fi
     rm .git/_nomis-doing-post-commit-rewriting
 fi
-
-#### TODO Need to re-apply the stash if an error happened.
-####      And probably in other cases too.

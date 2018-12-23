@@ -1,6 +1,17 @@
 * cljfmt-v2
+** Fixes / robustness
+*** pre-commit
+**** If the current commit is apply-local-formatting*, check it is not pushed
+**** Check the top stash
+***** After you do the tidying up to get rid of it at the end
+****** Check top stash is not '_created-by-nomis-post-commit-hook-xxxx'
 ** Send error echo output to stderr
 ** Deal with errors
+*** Some stuff moved from the code
+
+#### TODO Need to re-apply the stash if an error happened.
+####      And probably in other cases too.
+
 ** Stash everything, keeping staged changes
 ** Consider using tags or branches for the tool's work (rather than commits)
 ** Work out how to deal with nested calls to the hooks
