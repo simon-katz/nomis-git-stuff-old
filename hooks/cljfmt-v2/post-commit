@@ -19,7 +19,7 @@ if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
         git commit --quiet --no-verify --allow-empty -m "apply-cljfmt-formatting"
         echo "Done checking et"
         git reset --quiet --soft HEAD~3
-        git add .
+        git add . # TODO Is this needed?
         git commit --quiet -C ${THE_USER_COMMIT_SHA}
 
         ## Create a new "apply-local-formatting" commit.
@@ -35,9 +35,21 @@ if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
         TOP_STASH=$(git stash list | head -1)
         if [[ $TOP_STASH =~ "_created-by-pre-commit-hook" ]]; then
             echo "Restoring worktree"
+
+            ## Fails weirdly.
+
+            ## Oh, I think it's the pre-commit hook that you messed up.
+
+            ## This worked when I did everything in a command tool.
+            ## - Except that the `git stash show` doesn't show untracked files.
+            ## - Try    git show stash@{0}^3
+            ##      - see https://stackoverflow.com/questions/12681529/in-git-is-there-a-way-to-show-untracked-stashed-files-without-applying-the-stas
+            ##      - Maybe want to ignore any errors.
+            ## But not by itself.
             # git stash show -p > .git/nomis-changes.patch
             # git apply .git/nomis-changes.patch
             # rm .git/nomis-changes.patch
+
             git stash apply --quiet # TODO Change this to pop when you are happy
         fi
     fi

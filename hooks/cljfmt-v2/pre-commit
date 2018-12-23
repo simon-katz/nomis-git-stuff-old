@@ -16,7 +16,7 @@ if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
         --message "_created-by-pre-commit-hook"
 
     #### Stash the worktree and untracked files, but not the index.
-    # git commit -m '_nomis-temp-to-allow-stashing-of-unstaged-changes'
+    # git commit --quiet --no-verify --allow-empty -m '_nomis-temp-to-allow-stashing-of-unstaged-changes'
     # git stash push \
     #     --quiet \
     #     --include-untracked \
