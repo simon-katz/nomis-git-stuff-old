@@ -16,3 +16,8 @@ function replace_previous_n_commits {
     git add . # TODO Is this needed?
     git commit --quiet --no-verify -C ${commit_sha}
 }
+
+function return_top_stash_name {
+    local n=$1
+    echo $(git stash list | head -${n})
+}

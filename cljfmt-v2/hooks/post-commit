@@ -4,7 +4,7 @@ THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
 
 source ${THIS_DIR}/../lib/git-funs.sh
 
-function return__stash_name {
+function return_make_safekeeping_stash_name {
     local timestamp=$1
     local commit_sha=$2
     echo "_nomis-cljfmt-v2-post-commit--${timestamp}--for-${commit_sha}"
@@ -31,7 +31,7 @@ function create_apply_local_formatting_commit {
 function restore_uncommitted_changes {
     local stash_name=$1
     echo 'Thinking about restoring uncommitted changes.'
-    TOP_STASH=$(git stash list | head -1)
+    TOP_STASH=$(return_top_stash_name 1)
     if [[ $TOP_STASH =~ "${stash_name}" ]]; then
         echo 'Restoring uncommitted changes.'
         git stash apply --quiet # TODO Change this to pop when you are happy.
@@ -54,7 +54,7 @@ function post_commit {
 
         local THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
         local NOMIS_TIMESTAMP=$(date "+%Y-%m-%d--%H-%M-%S")
-        local STASH_NAME=$(return__stash_name ${NOMIS_TIMESTAMP} ${THE_USER_COMMIT_SHA})
+        local STASH_NAME=$(return_make_safekeeping_stash_name ${NOMIS_TIMESTAMP} ${THE_USER_COMMIT_SHA})
 
         ## TODO Take a closer look at these stashes.
         ##      - Do they still seem to delete many files?
