@@ -7,7 +7,25 @@ source ${THIS_DIR}/../lib/git-funs.sh
 function return__stash_name {
     local timestamp=$1
     local commit_sha=$2
-    echo "_created-by-nomis-cljfmt-v2-post-commit-hook-${timestamp}-for-${commit_sha}"
+    echo "_nomis-cljfmt-v2-post-commit--${timestamp}--for-${commit_sha}"
+}
+
+function reformat_and_commit {
+    echo 'Applying cljfmt formatting.'
+    lein cljfmt fix > /dev/null 2>&1
+    git add .
+    echo 'Committing: cljfmt formatting.'
+    git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
+}
+
+function create_apply_local_formatting_commit {
+    local old_sha=$1
+    echo 'Committing: apply-local-formatting.'
+    # Set index to be as it was.
+    git checkout --quiet ${old_sha} .
+    # Create the commit.
+    # TODO Get the exact 'apply-local-formatting' message from the commit.
+    git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
 }
 
 function post_commit {
@@ -25,34 +43,16 @@ function post_commit {
         touch .git/_nomis-doing-post-commit-rewriting
 
         local THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
-        local NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
+        local NOMIS_TIMESTAMP=$(date "+%Y-%m-%d--%H-%M-%S")
         local STASH_NAME=$(return__stash_name ${NOMIS_TIMESTAMP} ${THE_USER_COMMIT_SHA})
 
-        ## Temporarily stash the changes that weren't commited.
-        ## Note that this only creates a stash if there are changes.
         ## TODO Take a closer look at these stashes.
         ##      - Do they still seem to delete many files?
-        git_stash_include_untracked "${STASH_NAME}"
+        git_stash_if_dirty_include_untracked "${STASH_NAME}"
 
-        ## Reformat and replace commits.
-        echo 'Applying cljfmt formatting.'
-        lein cljfmt fix > /dev/null 2>&1
-        WERE_CHANGES_MADE_P=$?
-        git add .
-        echo 'Committing: cljfmt formatting.'
-        git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
-        echo 'Committing: Replacing last three commits with a single commit.'
-        git reset --quiet --soft HEAD~3
-        git add . # TODO Is this needed?
-        git commit --quiet --no-verify -C ${THE_USER_COMMIT_SHA}
-
-        ## Create a new 'apply-local-formatting' commit.
-        echo 'Committing: apply-local-formatting.'
-        # Set index to be as it was.
-        git checkout --quiet ${THE_USER_COMMIT_SHA} .
-        # Create the commit.
-        # TODO Get the exact 'apply-local-formatting' message from the commit.
-        git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
+        reformat_and_commit
+        replace_previous_n_commits "3" ${THE_USER_COMMIT_SHA}
+        create_apply_local_formatting_commit ${THE_USER_COMMIT_SHA}
 
         ## Restore uncommitted changes.
         echo 'Thinking about restoring uncommitted changes.'
