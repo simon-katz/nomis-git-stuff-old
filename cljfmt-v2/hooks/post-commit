@@ -38,17 +38,25 @@ function restore_uncommitted_changes {
     fi
 }
 
+function echo_in_nested_post_commit_hook_message {
+    echo '    post-commit hook: Doing nothing, because we are in a nested post-commit hook.'
+}
+
+function echo_this_is_an_apply_local_formatting_message {
+    echo '    post-commit hook: Doing nothing, because this is an "apply-local-formatting" commit.'
+}
+
+function echo_previous_commit_is_apply_local_formatting_message {
+    echo '    post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' $(return_top_commit_message 2)
+}
+
 function post_commit {
     if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
-        :
-        echo '    post-commit hook: Doing nothing, because we are in a nested post-commit hook.'
-    elif [[ $(git log --format=%s -n 1) == apply-local-formatting* ]] ; then
-        :
-        echo '    post-commit hook: Doing nothing, because this is an "apply-local-formatting" commit.'
-    elif [[ $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]] ; then
-        :
-        THE_USER_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-        echo '    post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' ${THE_USER_COMMIT_MESSAGE}
+        echo_in_nested_post_commit_hook_message
+    elif [[ $(return_top_commit_message 1) == apply-local-formatting* ]] ; then
+        echo_this_is_an_apply_local_formatting_message
+    elif [[ $(return_top_commit_message 2) != apply-local-formatting* ]] ; then
+        echo_previous_commit_is_apply_local_formatting_message
     else
         touch .git/_nomis-doing-post-commit-rewriting
 

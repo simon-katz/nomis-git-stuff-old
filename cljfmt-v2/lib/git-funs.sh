@@ -21,3 +21,8 @@ function return_top_stash_name {
     local n=$1
     echo $(git stash list | head -${n})
 }
+
+function return_top_commit_message {
+    local n=$1
+    echo $(git log --format=%s -n ${n} | tail -1)
+}
