@@ -2,6 +2,7 @@
 
 THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
 THE_USER_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
 
 if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
     :
@@ -20,10 +21,11 @@ else
     #### Note that this only creates a stash if there are changes.
     #### TODO Take a closer look at these stashes. They seem to delete many files.
     #### Stash the worktree and untracked files.
+    STASH_NAME="_created-by-nomis-post-commit-hook-${NOMIS_TIMESTAMP}-for-${THE_USER_COMMIT_SHA}"
     git stash push \
         --quiet \
         --include-untracked \
-        --message '_created-by-nomis-post-commit-hook'
+        --message "${STASH_NAME}"
 
     #### TODO Maybe it will help to create separate stashes for tracked and
     ####      untracked files. Get a clearer idea of the failures and then
@@ -37,7 +39,7 @@ else
     # git stash push \
     #     --quiet \
     #     --include-untracked \
-    #     --message '_created-by-nomis-post-commit-hook'
+    #     --message "${STASH_NAME}"
     # git reset --soft HEAD^
 
 
@@ -64,7 +66,7 @@ else
     ## Restore worktree.
     echo 'Thinking about restoring worktree.'
     TOP_STASH=$(git stash list | head -1)
-    if [[ $TOP_STASH =~ '_created-by-nomis-post-commit-hook' ]]; then
+    if [[ $TOP_STASH =~ "${STASH_NAME}" ]]; then
         echo 'Restoring worktree.'
 
         ## Fails weirdly.

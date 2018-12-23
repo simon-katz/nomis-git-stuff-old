@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#### TODO Change the stash name to include a timestamp: STASH_NAME=_created-by-nomis-post-commit-hook-$(date "+%Y-%m-%d-%H-%M-%S")
-
-
 if [ -f .git/_nomis-doing-post-commit-rewriting ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
     echo '**** pre-commit hook: We are in nested hooks. You should use --no-verify.'
 else
