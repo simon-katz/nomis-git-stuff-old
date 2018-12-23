@@ -1,5 +1,9 @@
 #!/bin/bash
 
+THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
+
+source ${THIS_DIR}/../lib/git-funs.sh
+
 if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
     :
     echo '    post-commit hook: Doing nothing, because we are in a nested post-commit hook.'
@@ -20,10 +24,7 @@ else
     THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
     NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
     STASH_NAME="_created-by-nomis-cljfmt-v2-post-commit-hook-${NOMIS_TIMESTAMP}-for-${THE_USER_COMMIT_SHA}"
-    git stash push \
-        --quiet \
-        --include-untracked \
-        --message "${STASH_NAME}"
+    git_stash_include_untracked "${STASH_NAME}"
 
     ## Reformat and replace commits.
     echo 'Applying cljfmt formatting.'
