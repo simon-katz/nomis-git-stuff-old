@@ -38,7 +38,7 @@ if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
 
             ## Fails weirdly.
 
-            ## Oh, I think it's the pre-commit hook that you messed up.
+            ## TODO Oh, I think it's the pre-commit hook that you messed up.
 
             ## This worked when I did everything in a command tool.
             ## - Except that the `git stash show` doesn't show untracked files.
