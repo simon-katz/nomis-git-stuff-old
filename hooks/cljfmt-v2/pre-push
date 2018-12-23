@@ -1,18 +1,32 @@
 #!/bin/bash
 
-STASH_NAME=_$(date "+%Y-%m-%d-%H-%M-%S")--pre-cljfmt-for-push
+#### TODO Oh, how are you going to push the previous commit AND then reset to
+####      the current commit?
+####      - There's no post-commit hook.
+####      Maybe exit 1 when HEAD is apply-local-formatting, and supply a
+####      script to:
+####      - Check that HEAD is apply-local-formatting, and is unpushed
+####      - Note the SHA of HEAD
+####      - Stash everything
+####      - git reset --hard HEAD~1
+####      - git push
+####      - git reset --hard THE-SAVED-SHA
+####      - Restore the stash
 
 
 # Check that the current commit is not "apply-local-formatting".
 # TODO - Need to check all un-pushed commits.
-if [[ $(git log --format=%s -n 1) != apply-local-formatting* ]]; then
-    echo "Currently only dealing with apply-local-formatting"
+if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
+    echo "Cannot push an \"apply-local-formatting\" commit."
     exit 1
 fi
 
 
-# Stash everything temporarily. Keep staged files. Note that this doesn't
-# create a stash if there are no changes.
+#### Stash everything temporarily.
+#### Note that this doesn't create a stash if there are no changes.
+NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
+THE_CURRENT_COMMIT_SHA=$(git rev-parse HEAD)
+STASH_NAME="_created-by-nomis-pre-push-hook-${NOMIS_TIMESTAMP}-for-${THE_CURRENT_COMMIT_SHA}"
 git stash push \
     --quiet \
     --include-untracked \
