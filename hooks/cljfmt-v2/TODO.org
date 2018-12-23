@@ -1,4 +1,5 @@
 * cljfmt-v2
+** Consider removing the v1 stuff so that you don't have to maintain something you don't use
 ** Fixes / robustness
 *** pre-commit
 **** If the current commit is apply-local-formatting*, check it is not pushed
