@@ -1,0 +1,6 @@
+To use:
+
+    git config core.hooksPath <this-directory>/hooks
+
+
+Use `bin/nomis-cljfmt-v2-git-push` to push.

@@ -1,0 +1,3 @@
+To use:
+
+    git config core.hooksPath <this-directory>/hooks
