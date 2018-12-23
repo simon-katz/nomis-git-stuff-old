@@ -1,63 +1,59 @@
 #!/bin/bash
 
 THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
+THE_USER_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
 
-if [ -f .git/_nomis-doing-post-commit-rewriting ]; then
+if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
     :
-    echo 'post-commit hook: Doing nothing (1)'
+    echo 'post-commit hook: Doing nothing, because we are in a nested post-commit hook'
+elif [[ $(git log --format=%s -n 1) == apply-local-formatting* ]] ; then
+    :
+    echo 'post-commit hook: Doing nothing, because this is an "apply-local-formatting" commit'
+elif [[ $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]] ; then
+    :
+    echo 'post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' ${THE_USER_COMMIT_MESSAGE}
 else
     touch .git/_nomis-doing-post-commit-rewriting
-    # TODO Do you need both these apply-local-formatting* tests?
-    #      - One is for the new commit being apply-local-formatting.
-    #      - The other is for the special work we need to do.
-    if [[ $(git log --format=%s -n 1) == apply-local-formatting* \
-              || $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]]; then
-        :
-        echo 'post-commit hook: Doing nothing (2)'
-    else
-        ## Reformat and apply any changes.
-        echo 'Applying cljfmt formatting and committing'
-        lein cljfmt fix > /dev/null 2>&1
-        WERE_CHANGES_MADE_P=$?
-        git add .
-        git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
-        git reset --quiet --soft HEAD~3
-        git add . # TODO Is this needed?
-        git commit --quiet --no-verify -C ${THE_USER_COMMIT_SHA}
+    ## Reformat and apply any changes.
+    echo 'Applying cljfmt formatting and committing'
+    lein cljfmt fix > /dev/null 2>&1
+    WERE_CHANGES_MADE_P=$?
+    git add .
+    git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
+    git reset --quiet --soft HEAD~3
+    git add . # TODO Is this needed?
+    git commit --quiet --no-verify -C ${THE_USER_COMMIT_SHA}
 
-        ## Create a new 'apply-local-formatting' commit.
-        echo 'Creating a new "apply-local-formatting" commit'
-        # Set index to be as it was.
-        git checkout --quiet ${THE_USER_COMMIT_SHA} .
-        # Create an 'apply-local-formatting' commit.
-        # TODO Get the exact 'apply-local-formatting' message from the commit.
-        git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
+    ## Create a new 'apply-local-formatting' commit.
+    echo 'Creating a new "apply-local-formatting" commit'
+    # Set index to be as it was.
+    git checkout --quiet ${THE_USER_COMMIT_SHA} .
+    # Create an 'apply-local-formatting' commit.
+    # TODO Get the exact 'apply-local-formatting' message from the commit.
+    git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
 
-        ## Restore worktree.
-        echo 'Thinking about restoring worktree'
-        TOP_STASH=$(git stash list | head -1)
-        if [[ $TOP_STASH =~ '_created-by-pre-commit-hook' ]]; then
-            echo 'Restoring worktree'
+    ## Restore worktree.
+    echo 'Thinking about restoring worktree'
+    TOP_STASH=$(git stash list | head -1)
+    if [[ $TOP_STASH =~ '_created-by-pre-commit-hook' ]]; then
+        echo 'Restoring worktree'
 
-            ## Fails weirdly.
-            ## TODO Oh, I think it's the pre-commit hook that you messed up.
+        ## Fails weirdly.
+        ## TODO Oh, I think it's the pre-commit hook that you messed up.
+        ## This worked when I did everything in a command tool.
+        ## - Except that the `git stash show` doesn't show untracked files.
+        ## - Try    git show stash@{0}^3
+        ##      - see https://stackoverflow.com/questions/12681529/in-git-is-there-a-way-to-show-untracked-stashed-files-without-applying-the-stas
+        ##      - Maybe want to ignore any errors.
+        ## But not by itself.
+        # git stash show -p > .git/nomis-changes.patch
+        # git apply .git/nomis-changes.patch
+        # rm .git/nomis-changes.patch
 
-            ## This worked when I did everything in a command tool.
-            ## - Except that the `git stash show` doesn't show untracked files.
-            ## - Try    git show stash@{0}^3
-            ##      - see https://stackoverflow.com/questions/12681529/in-git-is-there-a-way-to-show-untracked-stashed-files-without-applying-the-stas
-            ##      - Maybe want to ignore any errors.
-            ## But not by itself.
-            # git stash show -p > .git/nomis-changes.patch
-            # git apply .git/nomis-changes.patch
-            # rm .git/nomis-changes.patch
-
-            git stash apply --quiet # TODO Change this to pop when you are happy
-        fi
+        git stash apply --quiet # TODO Change this to pop when you are happy
     fi
     rm .git/_nomis-doing-post-commit-rewriting
 fi
-
 
 #### TODO Need to re-apply the stash if an error happened.
 ####      And probably in other cases too.
