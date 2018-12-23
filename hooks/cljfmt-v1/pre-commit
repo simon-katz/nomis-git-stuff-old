@@ -1,10 +1,9 @@
 #!/bin/bash
 
-NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
-STASH_NAME="_created-by-nomis-pre-commit-hook-${NOMIS_TIMESTAMP}"
-
 # Stash everything temporarily, keeping staged files.
 # Note that this doesn't create a stash if there are no changes.
+NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
+STASH_NAME="_created-by-nomis-cljfmt-v1-pre-commit-hook-${NOMIS_TIMESTAMP}"
 git stash push \
     --quiet \
     --keep-index \

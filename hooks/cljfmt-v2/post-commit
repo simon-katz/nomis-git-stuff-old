@@ -1,9 +1,5 @@
 #!/bin/bash
 
-THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
-THE_USER_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
-
 if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
     :
     echo '    post-commit hook: Doing nothing, because we are in a nested post-commit hook.'
@@ -12,6 +8,7 @@ elif [[ $(git log --format=%s -n 1) == apply-local-formatting* ]] ; then
     echo '    post-commit hook: Doing nothing, because this is an "apply-local-formatting" commit.'
 elif [[ $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]] ; then
     :
+    THE_USER_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
     echo '    post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' ${THE_USER_COMMIT_MESSAGE}
 else
     touch .git/_nomis-doing-post-commit-rewriting
@@ -20,7 +17,9 @@ else
     ## Note that this only creates a stash if there are changes.
     ## TODO Take a closer look at these stashes.
     ##      - Do they still seem to delete many files?
-    STASH_NAME="_created-by-nomis-post-commit-hook-${NOMIS_TIMESTAMP}-for-${THE_USER_COMMIT_SHA}"
+    THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
+    NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
+    STASH_NAME="_created-by-nomis-cljfmt-v2-post-commit-hook-${NOMIS_TIMESTAMP}-for-${THE_USER_COMMIT_SHA}"
     git stash push \
         --quiet \
         --include-untracked \

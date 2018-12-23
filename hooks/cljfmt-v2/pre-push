@@ -1,38 +1,24 @@
 #!/bin/bash
 
-#### TODO Oh, how are you going to push the previous commit AND then reset to
-####      the current commit?
-####      - There's no post-commit hook.
-####      Maybe exit 1 when HEAD is apply-local-formatting, and supply a
-####      script to:
-####      - Check that HEAD is apply-local-formatting, and is unpushed
-####      - Note the SHA of HEAD
-####      - Stash everything
-####      - git reset --hard HEAD~1
-####      - git push
-####      - git reset --hard THE-SAVED-SHA
-####      - Restore the stash
-
-
-# Check that the current commit is not "apply-local-formatting".
-# TODO - Need to check all un-pushed commits.
+## Check that the current commit is not "apply-local-formatting".
+## TODO - Need to check all un-pushed commits.
 if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
-    echo "Cannot push an \"apply-local-formatting\" commit."
+    echo 'Cannot push an "apply-local-formatting" commit. You may want the "nomis-cljfmt-v2-git-push" command.'
     exit 1
 fi
 
 
-#### Stash everything temporarily.
-#### Note that this doesn't create a stash if there are no changes.
+## Stash everything temporarily.
+## Note that this doesn't create a stash if there are no changes.
 NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
 THE_CURRENT_COMMIT_SHA=$(git rev-parse HEAD)
-STASH_NAME="_created-by-nomis-pre-push-hook-${NOMIS_TIMESTAMP}-for-${THE_CURRENT_COMMIT_SHA}"
+STASH_NAME="_created-by-nomis-cljfmt-v2-pre-push-hook-${NOMIS_TIMESTAMP}-for-${THE_CURRENT_COMMIT_SHA}"
 git stash push \
     --quiet \
     --include-untracked \
     --message "${STASH_NAME}"
 
-# Do the checks and let the user know about any failure:
+## Do the checks and let the user know about any failure:
 echo -n "Checking formatting..."
 lein cljfmt check > /dev/null 2>&1
 return_code=$?
@@ -44,14 +30,14 @@ else
     echo "OK."
 fi
 
-# If we created a stash, pop it:
+## If we created a stash, pop it:
 TOP_STASH=$(git stash list | head -1)
 if [[ $TOP_STASH =~ ${STASH_NAME} ]]; then
     # Return to original state.
     git stash apply --quiet --index # TODO Change this to pop when are sure all is OK
 fi
 
-# Deal with the return value:
+## Deal with the return value:
 if [ $return_code -ne 0 ]
 then
     exit 1
