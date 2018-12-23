@@ -1,7 +1,8 @@
 #!/bin/bash
 
 if [ -f .git/_nomis-doing-post-commit-rewriting ]; then
-    echo '**** pre-commit hook: We are in nested hooks. You should use --no-verify.'
+    echo 'ERROR in pre-commit hook: .git/_nomis-doing-post-commit-rewriting exists -- something must have gone wrong before -- delete the file so you can continue.'
+    exit 1
 elif [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
     # TODO Check that commit is not pushed, because in that case what
     #      should we do?
