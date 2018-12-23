@@ -1,11 +1,9 @@
 #!/bin/bash
 
-NOMIS_IN_POST_COMMIT_HOOK='.git/nomis-in-post-commit-hook'
-
 #### TODO Change the stash name to include a timestamp: STASH_NAME=created-by-pre-commit-hook-$(date "+%Y-%m-%d-%H-%M-%S")
 
 
-if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
+if [ ! -f .git/_nomis-doing-post-commit-rewriting ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
 
     #### TODO Check that top stash is not '_nomis-temp-to-allow-stashing-of-unstaged-changes' -- after you do the tidying up to get rid of it.
 

@@ -1,14 +1,12 @@
 #!/bin/bash
 
-NOMIS_IN_POST_COMMIT_HOOK='.git/nomis-in-post-commit-hook'
-
 THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
 
-if [ -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
+if [ -f .git/_nomis-doing-post-commit-rewriting ]; then
     :
     echo 'post-commit hook: Doing nothing (1)'
 else
-    touch ${NOMIS_IN_POST_COMMIT_HOOK}
+    touch .git/_nomis-doing-post-commit-rewriting
     # TODO Do you need both these apply-local-formatting* tests?
     #      - One is for the new commit being apply-local-formatting.
     #      - The other is for the special work we need to do.
@@ -42,7 +40,6 @@ else
             echo 'Restoring worktree'
 
             ## Fails weirdly.
-
             ## TODO Oh, I think it's the pre-commit hook that you messed up.
 
             ## This worked when I did everything in a command tool.
@@ -58,7 +55,7 @@ else
             git stash apply --quiet # TODO Change this to pop when you are happy
         fi
     fi
-    rm ${NOMIS_IN_POST_COMMIT_HOOK}
+    rm .git/_nomis-doing-post-commit-rewriting
 fi
 
 
