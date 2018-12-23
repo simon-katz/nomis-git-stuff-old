@@ -16,34 +16,17 @@ elif [[ $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]] ; th
 else
     touch .git/_nomis-doing-post-commit-rewriting
 
-
-    #### Stash everything temporarily. Keep staged files.
-    #### Note that this only creates a stash if there are changes.
-    #### TODO Take a closer look at these stashes. They seem to delete many files.
-    #### Stash the worktree and untracked files.
+    ## Temporarily stash the changes that weren't commited.
+    ## Note that this only creates a stash if there are changes.
+    ## TODO Take a closer look at these stashes.
+    ##      - Do they still seem to delete many files?
     STASH_NAME="_created-by-nomis-post-commit-hook-${NOMIS_TIMESTAMP}-for-${THE_USER_COMMIT_SHA}"
     git stash push \
         --quiet \
         --include-untracked \
         --message "${STASH_NAME}"
 
-    #### TODO Maybe it will help to create separate stashes for tracked and
-    ####      untracked files. Get a clearer idea of the failures and then
-    ####      decide.
-    ####      Oh, but remember the stashes will both have the staged files.
-
-    ####      REVISIT WHEN YOU ARE AWAKE.
-
-    #### Stash the worktree and untracked files, but not the index.
-    # git commit --quiet --no-verify --allow-empty -m '_nomis-temp-to-allow-stashing-of-unstaged-changes'
-    # git stash push \
-    #     --quiet \
-    #     --include-untracked \
-    #     --message "${STASH_NAME}"
-    # git reset --soft HEAD^
-
-
-    ## Reformat and apply any changes.
+    ## Reformat and replace commits.
     echo 'Applying cljfmt formatting.'
     lein cljfmt fix > /dev/null 2>&1
     WERE_CHANGES_MADE_P=$?
@@ -59,29 +42,16 @@ else
     echo 'Committing: apply-local-formatting.'
     # Set index to be as it was.
     git checkout --quiet ${THE_USER_COMMIT_SHA} .
-    # Create an 'apply-local-formatting' commit.
+    # Create the commit.
     # TODO Get the exact 'apply-local-formatting' message from the commit.
     git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
 
-    ## Restore worktree.
-    echo 'Thinking about restoring worktree.'
+    ## Restore uncommitted changes.
+    echo 'Thinking about restoring uncommitted changes.'
     TOP_STASH=$(git stash list | head -1)
     if [[ $TOP_STASH =~ "${STASH_NAME}" ]]; then
-        echo 'Restoring worktree.'
-
-        ## Fails weirdly.
-        ## TODO Oh, I think it's the pre-commit hook that you messed up.
-        ## This worked when I did everything in a command tool.
-        ## - Except that the `git stash show` doesn't show untracked files.
-        ## - Try    git show stash@{0}^3
-        ##      - see https://stackoverflow.com/questions/12681529/in-git-is-there-a-way-to-show-untracked-stashed-files-without-applying-the-stas
-        ##      - Maybe want to ignore any errors.
-        ## But not by itself.
-        # git stash show -p > .git/nomis-changes.patch
-        # git apply .git/nomis-changes.patch
-        # rm .git/nomis-changes.patch
-
-        git stash apply --quiet # TODO Change this to pop when you are happy
+        echo 'Restoring uncommitted changes.'
+        git stash apply --quiet # TODO Change this to pop when you are happy.
     fi
     rm .git/_nomis-doing-post-commit-rewriting
 fi
