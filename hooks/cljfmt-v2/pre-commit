@@ -3,8 +3,9 @@
 #### TODO Change the stash name to include a timestamp: STASH_NAME=created-by-pre-commit-hook-$(date "+%Y-%m-%d-%H-%M-%S")
 
 
-if [ ! -f .git/_nomis-doing-post-commit-rewriting ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
-
+if [ -f .git/_nomis-doing-post-commit-rewriting ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
+    echo '**** pre-commit hook: We are in nested hooks. You should use --no-verify.'
+else
     #### TODO Check that top stash is not '_nomis-temp-to-allow-stashing-of-unstaged-changes' -- after you do the tidying up to get rid of it.
 
     #### Stash everything temporarily. Keep staged files.

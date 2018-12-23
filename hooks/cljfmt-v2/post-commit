@@ -5,27 +5,29 @@ THE_USER_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
 
 if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
     :
-    echo 'post-commit hook: Doing nothing, because we are in a nested post-commit hook'
+    echo '    post-commit hook: Doing nothing, because we are in a nested post-commit hook.'
 elif [[ $(git log --format=%s -n 1) == apply-local-formatting* ]] ; then
     :
-    echo 'post-commit hook: Doing nothing, because this is an "apply-local-formatting" commit'
+    echo '    post-commit hook: Doing nothing, because this is an "apply-local-formatting" commit.'
 elif [[ $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]] ; then
     :
-    echo 'post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' ${THE_USER_COMMIT_MESSAGE}
+    echo '    post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' ${THE_USER_COMMIT_MESSAGE}
 else
     touch .git/_nomis-doing-post-commit-rewriting
     ## Reformat and apply any changes.
-    echo 'Applying cljfmt formatting and committing'
+    echo 'Applying cljfmt formatting.'
     lein cljfmt fix > /dev/null 2>&1
     WERE_CHANGES_MADE_P=$?
     git add .
+    echo 'Committing: cljfmt formatting.'
     git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
+    echo 'Committing: Replacing last three commits with a single commit.'
     git reset --quiet --soft HEAD~3
     git add . # TODO Is this needed?
     git commit --quiet --no-verify -C ${THE_USER_COMMIT_SHA}
 
     ## Create a new 'apply-local-formatting' commit.
-    echo 'Creating a new "apply-local-formatting" commit'
+    echo 'Committing: apply-local-formatting.'
     # Set index to be as it was.
     git checkout --quiet ${THE_USER_COMMIT_SHA} .
     # Create an 'apply-local-formatting' commit.
@@ -33,10 +35,10 @@ else
     git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
 
     ## Restore worktree.
-    echo 'Thinking about restoring worktree'
+    echo 'Thinking about restoring worktree.'
     TOP_STASH=$(git stash list | head -1)
     if [[ $TOP_STASH =~ '_created-by-pre-commit-hook' ]]; then
-        echo 'Restoring worktree'
+        echo 'Restoring worktree.'
 
         ## Fails weirdly.
         ## TODO Oh, I think it's the pre-commit hook that you messed up.
