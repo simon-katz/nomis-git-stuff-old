@@ -1,40 +1,45 @@
 #!/bin/bash
 
-NOMIS_IN_POST_COMMIT_HOOK=".git/nomis-in-post-commit-hook"
+NOMIS_IN_POST_COMMIT_HOOK='.git/nomis-in-post-commit-hook'
 
 THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
 
-if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
+if [ -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
+    :
+    echo 'post-commit hook: Doing nothing (1)'
+else
     touch ${NOMIS_IN_POST_COMMIT_HOOK}
-    # TODO DO you need both these "apply-local-formatting*" tests?
+    # TODO Do you need both these apply-local-formatting* tests?
+    #      - One is for the new commit being apply-local-formatting.
+    #      - The other is for the special work we need to do.
     if [[ $(git log --format=%s -n 1) == apply-local-formatting* \
               || $(git log --format=%s -n 2 | tail -1) != apply-local-formatting* ]]; then
         :
+        echo 'post-commit hook: Doing nothing (2)'
     else
         ## Reformat and apply any changes.
-        echo "Applying cljfmt formatting and committing"
+        echo 'Applying cljfmt formatting and committing'
         lein cljfmt fix > /dev/null 2>&1
         WERE_CHANGES_MADE_P=$?
         git add .
-        git commit --quiet --no-verify --allow-empty -m "apply-cljfmt-formatting"
-        echo "Done checking et"
+        git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
         git reset --quiet --soft HEAD~3
         git add . # TODO Is this needed?
-        git commit --quiet -C ${THE_USER_COMMIT_SHA}
+        git commit --quiet --no-verify -C ${THE_USER_COMMIT_SHA}
 
-        ## Create a new "apply-local-formatting" commit.
-        echo "Creating a new \"apply-local-formatting\" commit"
+        ## Create a new 'apply-local-formatting' commit.
+        echo 'Creating a new "apply-local-formatting" commit'
         # Set index to be as it was.
         git checkout --quiet ${THE_USER_COMMIT_SHA} .
-        # Create an "apply-local-formatting" commit.
-        # TODO Get the exact "apply-local-formatting" message from the commit.
-        git commit --quiet --no-verify --allow-empty -m "apply-local-formatting"
+        # Create an 'apply-local-formatting' commit.
+        # TODO Get the exact 'apply-local-formatting' message from the commit.
+        git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
 
         ## Restore worktree.
-        echo "Thinking about restoring worktree"
+        echo 'Thinking about restoring worktree'
         TOP_STASH=$(git stash list | head -1)
-        if [[ $TOP_STASH =~ "_created-by-pre-commit-hook" ]]; then
-            echo "Restoring worktree"
+        if [[ $TOP_STASH =~ '_created-by-pre-commit-hook' ]]; then
+            echo 'Restoring worktree'
 
             ## Fails weirdly.
 

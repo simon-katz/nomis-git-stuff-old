@@ -1,8 +1,14 @@
 #!/bin/bash
 
-NOMIS_IN_POST_COMMIT_HOOK=".git/nomis-in-post-commit-hook"
+NOMIS_IN_POST_COMMIT_HOOK='.git/nomis-in-post-commit-hook'
 
-if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
+#### TODO Change the stash name to include a timestamp: STASH_NAME=created-by-pre-commit-hook-$(date "+%Y-%m-%d-%H-%M-%S")
+
+
+if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
+
+    #### TODO Check that top stash is not '_nomis-temp-to-allow-stashing-of-unstaged-changes' -- after you do the tidying up to get rid of it.
+
     #### Stash everything temporarily. Keep staged files.
     #### Note that this only creates a stash if there are changes.
 
@@ -13,7 +19,7 @@ if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
         --quiet \
         --keep-index \
         --include-untracked \
-        --message "_created-by-pre-commit-hook"
+        --message '_created-by-pre-commit-hook'
 
     #### TODO Maybe it will help to create separate stashes for tracked and
     ####      untracked files. Get a clearer idea of the failures and then
@@ -27,7 +33,7 @@ if [ ! -f ${NOMIS_IN_POST_COMMIT_HOOK} ]; then
     # git stash push \
     #     --quiet \
     #     --include-untracked \
-    #     --message "_created-by-pre-commit-hook"
+    #     --message '_created-by-pre-commit-hook'
     # git reset --soft HEAD^
 
     if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
