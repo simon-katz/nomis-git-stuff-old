@@ -1,39 +1,12 @@
 #!/bin/bash
 
-#### TODO Change the stash name to include a timestamp: STASH_NAME=created-by-pre-commit-hook-$(date "+%Y-%m-%d-%H-%M-%S")
+#### TODO Change the stash name to include a timestamp: STASH_NAME=_created-by-nomis-post-commit-hook-$(date "+%Y-%m-%d-%H-%M-%S")
 
 
 if [ -f .git/_nomis-doing-post-commit-rewriting ]; then # TODO Can get rid of this if you are sure to use --no-verify when you need to
     echo '**** pre-commit hook: We are in nested hooks. You should use --no-verify.'
 else
     #### TODO Check that top stash is not '_nomis-temp-to-allow-stashing-of-unstaged-changes' -- after you do the tidying up to get rid of it.
-
-    #### Stash everything temporarily. Keep staged files.
-    #### Note that this only creates a stash if there are changes.
-
-    #### TODO Take a closer look at these stashes. They seem to delete many files.
-
-    #### Stash the worktree and untracked files, and the index. Hmmm.
-    git stash push \
-        --quiet \
-        --keep-index \
-        --include-untracked \
-        --message '_created-by-pre-commit-hook'
-
-    #### TODO Maybe it will help to create separate stashes for tracked and
-    ####      untracked files. Get a clearer idea of the failures and then
-    ####      decide.
-    ####      Oh, but remember the stashes will both have the staged files.
-
-    ####      REVISIT WHEN YOU ARE AWAKE.
-
-    #### Stash the worktree and untracked files, but not the index.
-    # git commit --quiet --no-verify --allow-empty -m '_nomis-temp-to-allow-stashing-of-unstaged-changes'
-    # git stash push \
-    #     --quiet \
-    #     --include-untracked \
-    #     --message '_created-by-pre-commit-hook'
-    # git reset --soft HEAD^
 
     if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
         # TODO Check that commit is not pushed, because in that case what
