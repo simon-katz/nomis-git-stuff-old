@@ -8,7 +8,7 @@
 
 if [[ $(git log --format=%s -n 1) != apply-local-formatting* ]]; then
     echo "Doing a normal push."
-    git push
+    git push $*
 else
     echo "Pushing the previous commit."
     ## Stash everything temporarily.
