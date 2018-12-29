@@ -1,4 +1,6 @@
 * cljfmt-v2
+** Need to look at what happens when there is no remote set up
+** Make sure error messages go to stderr
 ** Fixes / robustness
 *** pre-commit
 **** If the current commit is apply-local-formatting*, check it is not pushed
