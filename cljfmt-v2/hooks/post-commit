@@ -69,7 +69,7 @@ function post_commit {
         git__stash_if_dirty_include_untracked "${STASH_NAME}"
 
         reformat_and_commit
-        git__replace_previous_n_commits "3" ${THE_USER_COMMIT_SHA}
+        git__replace_previous_n_commits_incl_staged "3" ${THE_USER_COMMIT_SHA}
         create_commit_for_apply_local_formatting ${THE_USER_COMMIT_SHA}
         restore_uncommitted_changes "${STASH_NAME}"
 
