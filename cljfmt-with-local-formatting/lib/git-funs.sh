@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function git__return_branch-name {
+    # TODO Make the grep here a bit more selective.
+    echo $(git branch | grep \* | cut -d ' ' -f2)
+}
+
 function git__stash_if_dirty_include_untracked {
     local message=$1
     git stash push \

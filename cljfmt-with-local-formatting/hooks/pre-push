@@ -1,12 +1,37 @@
 #!/bin/bash
 
-## Check that the current commit is not "apply-local-formatting".
-## TODO - Need to check all un-pushed commits.
-if [[ $(git log --format=%s -n 1) == apply-local-formatting* ]]; then
-    echo 'Cannot push an "apply-local-formatting" commit. You may want the "nomis-cljfmt-v2-git-push" command.'
-    exit 1
-fi
+THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
 
+source ${THIS_DIR}/../lib/git-funs.sh
+
+## For now, things only work when there is a single remote and it is named
+## "origin".
+for remote in $(git remote)
+do
+    if [ $remote != "origin" ]
+    then
+        echo "ERROR: This only works when there is a single remote and it is named \"origin\"."
+        exit 1
+    fi
+done
+
+function return_remote_name {
+    echo $(git remote)
+}
+
+function return_unpushed_commit_names {
+    echo $(git log --format=%s $(return_remote_name)/$(git__return_branch-name)..HEAD)
+}
+
+## Check that there are no unpushed "apply-local-formatting" commits.
+for commit_msg in $(return_unpushed_commit_names)
+do
+    if [[ ${commit_msg} == apply-local-formatting* ]]
+    then
+        echo 'Cannot push an "apply-local-formatting" commit. You may want the "nomis-cljfmt-v2-git-push" command.'
+        exit 1
+    fi
+done
 
 ## Stash everything temporarily.
 ## Note that this doesn't create a stash if there are no changes.
