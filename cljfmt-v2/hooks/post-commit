@@ -12,17 +12,22 @@ function return_make_safekeeping_stash_name {
 
 function reformat_and_commit {
     echo 'Applying cljfmt formatting.'
-    lein cljfmt fix > /dev/null 2>&1
+    local user_commit_sha=$1
+    # There's a possibility here of exceeding the maximum shell command length.
+    # - TODO Make sure you detect and report any such error.
+    # - If this is a problem, don't create and use `changed_files`.
+    local changed_files=$(git diff-tree --no-commit-id --name-only -r ${user_commit_sha}~2 ${user_commit_sha})
+    lein cljfmt fix ${changed_files} > /dev/null 2>&1
     git add .
     echo 'Committing: cljfmt formatting.'
     git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
 }
 
 function create_commit_for_apply_local_formatting {
-    local old_sha=$1
+    local user_commit_sha=$1
     echo 'Committing: apply-local-formatting.'
     # Set index to be as it was.
-    git checkout --quiet ${old_sha} .
+    git checkout --quiet ${user_commit_sha} .
     # Create the commit.
     # TODO Get the exact 'apply-local-formatting' message from the commit.
     git commit --quiet --no-verify --allow-empty -m 'apply-local-formatting'
@@ -68,7 +73,7 @@ function post_commit {
         ##      - Do they still seem to delete many files?
         git__stash_if_dirty_include_untracked "${STASH_NAME}"
 
-        reformat_and_commit
+        reformat_and_commit ${THE_USER_COMMIT_SHA}
         git__replace_previous_n_commits_incl_staged "3" ${THE_USER_COMMIT_SHA}
         create_commit_for_apply_local_formatting ${THE_USER_COMMIT_SHA}
         restore_uncommitted_changes "${STASH_NAME}"
