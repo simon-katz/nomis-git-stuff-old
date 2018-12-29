@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function git_stash_if_dirty_include_untracked {
+function git__stash_if_dirty_include_untracked {
     local message=$1
     git stash push \
         --quiet \
@@ -8,7 +8,7 @@ function git_stash_if_dirty_include_untracked {
         --message "${message}"
 }
 
-function replace_previous_n_commits {
+function git__replace_previous_n_commits {
     local n=$1
     local commit_sha=$2
     echo "Committing: Replacing last ${n} commits with a single commit."
@@ -17,12 +17,12 @@ function replace_previous_n_commits {
     git commit --quiet --no-verify -C ${commit_sha}
 }
 
-function return_top_stash_name {
+function git__return_top_stash_name {
     local n=$1
     echo $(git stash list | head -${n})
 }
 
-function return_top_commit_message {
+function git__return_top_commit_message {
     local n=$1
     echo $(git log --format=%s -n ${n} | tail -1)
 }

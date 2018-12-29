@@ -18,7 +18,7 @@ function reformat_and_commit {
     git commit --quiet --no-verify --allow-empty -m 'apply-cljfmt-formatting'
 }
 
-function create_apply_local_formatting_commit {
+function create_commit_for_apply_local_formatting {
     local old_sha=$1
     echo 'Committing: apply-local-formatting.'
     # Set index to be as it was.
@@ -31,7 +31,7 @@ function create_apply_local_formatting_commit {
 function restore_uncommitted_changes {
     local stash_name=$1
     echo 'Thinking about restoring uncommitted changes.'
-    TOP_STASH=$(return_top_stash_name 1)
+    TOP_STASH=$(git__return_top_stash_name 1)
     if [[ $TOP_STASH =~ "${stash_name}" ]]; then
         echo 'Restoring uncommitted changes.'
         git stash apply --quiet # TODO Change this to pop when you are happy.
@@ -47,15 +47,15 @@ function echo_this_is_an_apply_local_formatting_message {
 }
 
 function echo_previous_commit_is_apply_local_formatting_message {
-    echo '    post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' $(return_top_commit_message 2)
+    echo '    post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' $(git__return_top_commit_message 2)
 }
 
 function post_commit {
     if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
         echo_in_nested_post_commit_hook_message
-    elif [[ $(return_top_commit_message 1) == apply-local-formatting* ]] ; then
+    elif [[ $(git__return_top_commit_message 1) == apply-local-formatting* ]] ; then
         echo_this_is_an_apply_local_formatting_message
-    elif [[ $(return_top_commit_message 2) != apply-local-formatting* ]] ; then
+    elif [[ $(git__return_top_commit_message 2) != apply-local-formatting* ]] ; then
         echo_previous_commit_is_apply_local_formatting_message
     else
         touch .git/_nomis-doing-post-commit-rewriting
@@ -66,11 +66,11 @@ function post_commit {
 
         ## TODO Take a closer look at these stashes.
         ##      - Do they still seem to delete many files?
-        git_stash_if_dirty_include_untracked "${STASH_NAME}"
+        git__stash_if_dirty_include_untracked "${STASH_NAME}"
 
         reformat_and_commit
-        replace_previous_n_commits "3" ${THE_USER_COMMIT_SHA}
-        create_apply_local_formatting_commit ${THE_USER_COMMIT_SHA}
+        git__replace_previous_n_commits "3" ${THE_USER_COMMIT_SHA}
+        create_commit_for_apply_local_formatting ${THE_USER_COMMIT_SHA}
         restore_uncommitted_changes "${STASH_NAME}"
 
         rm .git/_nomis-doing-post-commit-rewriting
