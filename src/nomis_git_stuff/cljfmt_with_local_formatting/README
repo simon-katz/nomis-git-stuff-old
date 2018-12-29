@@ -1,0 +1,12 @@
+To use:
+
+    git config core.hooksPath <this-directory>/hooks
+
+Use `bin/nomis-cljfmt-v2-git-push` to push.
+
+If we are using CLJS:
+
+    brew install clojure # see https://clojure.org/guides/getting_started
+    brew install planck # see http://planck-repl.org/setup.html
+
+    ln -s <this-repo-root-directory> ~/nomis-git-stuff
