@@ -1,8 +1,22 @@
 (ns nomis-git-stuff.cljfmt-with-local-formatting.pre-push
-  (:require [planck.core :as core]
+  (:require [goog.string :as gstring]
+            [goog.string.format]
+            [planck.core :as core]
             [nomis-git-stuff.common.git-funs :as git-funs]))
 
 (defn pre-push []
+
+  (println (gstring/format "branch-name = \"%s\""
+                           (git-funs/branch-name)))
+  (println (gstring/format "top-stash-name = \"%s\""
+                           (git-funs/top-stash-name)))
+  (println (gstring/format "commit message #1 = \"%s\""
+                           (git-funs/top-commit-message 1)))
+  (println (gstring/format "commit message #2 = \"%s\""
+                           (git-funs/top-commit-message 2)))
+  (println (gstring/format "commit message #3 = \"%s\""
+                           (git-funs/top-commit-message 3)))
+
   (println "Hello World!")
 
   (println "stdin =" (core/slurp core/*in*))

@@ -24,13 +24,3 @@
   (-> (my-sh (str "git log --format=%s -n " n " | tail -1"))
       remove-trailing-newline))
 
-;;;; ___________________________________________________________________________
-;;;; Tests
-
-(prn "(branch-name) =" (branch-name))
-
-(prn "(top-stash-name) =" (top-stash-name))
-
-(prn "(top-commit-message 1) =" (top-commit-message 1))
-(prn "(top-commit-message 2) =" (top-commit-message 2))
-(prn "(top-commit-message 3) =" (top-commit-message 3))
