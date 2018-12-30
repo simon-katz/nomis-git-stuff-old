@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-"exec" "plk" "-Sdeps" "{:paths [\"${HOME}/nomis-git-stuff/src\"]}" "$0" "$@"
+"exec" "plk" "-Sdeps" "{:paths [\"${HOME}/nomis-git-stuff/src/cljs\"]}" "$0" "$@"
 
 (ns nomis-git-stuff.cljfmt-with-local-formatting.hooks.pre-push
   (:require [nomis-git-stuff.cljfmt-with-local-formatting.pre-push :as pre-push]))
