@@ -8,7 +8,7 @@
 
 THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
 
-source ${THIS_DIR}/../../../bash/common/git-funs.sh
+source ${THIS_DIR}/../src/bash/common/git-funs.sh
 
 if [[ $(git log --format=%s -n 1) != apply-local-formatting* ]]; then
     echo "Doing a normal push."

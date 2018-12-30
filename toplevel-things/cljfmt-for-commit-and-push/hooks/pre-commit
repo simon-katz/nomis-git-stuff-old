@@ -2,7 +2,7 @@
 
 THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
 
-source ${THIS_DIR}/../../../bash/common/git-funs.sh
+source ${THIS_DIR}/../../../src/bash/common/git-funs.sh
 
 # Stash everything temporarily, keeping staged files.
 # Note that this doesn't create a stash if there are no changes.

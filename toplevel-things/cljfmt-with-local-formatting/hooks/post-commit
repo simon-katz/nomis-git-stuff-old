@@ -2,7 +2,7 @@
 
 THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
 
-source ${THIS_DIR}/../../../bash/common/git-funs.sh
+source ${THIS_DIR}/../../../src/bash/common/git-funs.sh
 
 function reformat_and_commit {
     echo 'Applying cljfmt formatting.'
