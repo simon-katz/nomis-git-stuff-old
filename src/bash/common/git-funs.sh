@@ -7,6 +7,8 @@ function git__return_branch-name {
 
 function git__stash_if_dirty_include_untracked {
     local message=$1
+    ## TODO Take a closer look at these stashes.
+    ##      - Do they still seem to delete many files?
     git stash push \
         --quiet \
         --include-untracked \

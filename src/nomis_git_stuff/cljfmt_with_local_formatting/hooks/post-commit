@@ -61,9 +61,6 @@ function post_commit {
 
         local THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
         local STASH_NAME=$(git__return_safekeeping_stash_name "_nomis-cljfmt-with-local-formatting" "post-commit" ${THE_USER_COMMIT_SHA})
-
-        ## TODO Take a closer look at these stashes.
-        ##      - Do they still seem to delete many files?
         git__stash_if_dirty_include_untracked "${STASH_NAME}"
 
         reformat_and_commit ${THE_USER_COMMIT_SHA}
