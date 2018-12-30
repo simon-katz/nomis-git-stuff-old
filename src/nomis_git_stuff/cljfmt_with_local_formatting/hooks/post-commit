@@ -47,11 +47,11 @@ function echo_in_nested_post_commit_hook_message {
     echo '    post-commit hook: Doing nothing, because we are in a nested post-commit hook.'
 }
 
-function echo_this_is_an_apply_local_formatting_message {
+function echo_this_is_an_apply_local_formatting_commit {
     echo '    post-commit hook: Doing nothing, because this is an "apply-local-formatting" commit.'
 }
 
-function echo_previous_commit_is_apply_local_formatting_message {
+function echo_previous_commit_is_not_apply_local_formatting_message {
     echo '    post-commit hook: Doing nothing, because previous commit is not an "apply-local-formatting" commit -- commit message is:' $(git__return_top_commit_message 2)
 }
 
@@ -59,9 +59,9 @@ function post_commit {
     if [ -f .git/_nomis-doing-post-commit-rewriting ] ; then
         echo_in_nested_post_commit_hook_message
     elif [[ $(git__return_top_commit_message 1) == apply-local-formatting* ]] ; then
-        echo_this_is_an_apply_local_formatting_message
+        echo_this_is_an_apply_local_formatting_commit
     elif [[ $(git__return_top_commit_message 2) != apply-local-formatting* ]] ; then
-        echo_previous_commit_is_apply_local_formatting_message
+        echo_previous_commit_is_not_apply_local_formatting_message
     else
         touch .git/_nomis-doing-post-commit-rewriting
 
