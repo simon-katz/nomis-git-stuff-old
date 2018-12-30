@@ -35,9 +35,9 @@ done
 
 ## Stash everything temporarily.
 ## Note that this doesn't create a stash if there are no changes.
-NOMIS_TIMESTAMP=$(date "+%Y-%m-%d-%H-%M-%S")
+NOMIS_TIMESTAMP=$(date "+%Y-%m-%d--%H-%M-%S")
 THE_CURRENT_COMMIT_SHA=$(git rev-parse HEAD)
-STASH_NAME="_created-by-nomis-cljfmt-v2-pre-push-hook-${NOMIS_TIMESTAMP}-for-${THE_CURRENT_COMMIT_SHA}"
+STASH_NAME="_nomis-cljfmt-v2-pre-push--${NOMIS_TIMESTAMP}--for-${THE_CURRENT_COMMIT_SHA}"
 git stash push \
     --quiet \
     --include-untracked \
