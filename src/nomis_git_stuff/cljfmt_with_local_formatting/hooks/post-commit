@@ -2,7 +2,7 @@
 
 THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
 
-source ${THIS_DIR}/../lib/git-funs.sh
+source ${THIS_DIR}/../../../bash/common/git-funs.sh
 
 function return_make_safekeeping_stash_name {
     local timestamp=$1
