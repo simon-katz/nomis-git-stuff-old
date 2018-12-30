@@ -18,7 +18,12 @@ function git__replace_previous_n_commits_incl_staged {
     local commit_sha=$2
     echo "Committing: Replacing last ${n} commits with a single commit."
     git reset --quiet --soft HEAD~${n}
-    git commit --quiet --no-verify -C ${commit_sha}
+    # TODO You added `--allow-empty` here, but the behaviour from
+    #      the local formatting post-commit hook was probably better before,
+    #      because you just got an "apply-local-formatting" commit.
+    #      When you rewrite this in CLJS, look into doing different things
+    #      depending on whether anything is being committed.
+    git commit --quiet --no-verify --allow-empty -C ${commit_sha}
 }
 
 function git__return_top_stash_name {
