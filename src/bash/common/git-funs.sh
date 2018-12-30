@@ -9,6 +9,8 @@ function git__stash_if_dirty_include_untracked {
     local message=$1
     ## TODO Take a closer look at these stashes.
     ##      - Do they still seem to delete many files?
+    ##        - It's with-local-formatting pre-push stashes.
+    ##          - They show deleted files in the "Untracked" section.
     git stash push \
         --quiet \
         --include-untracked \
