@@ -4,12 +4,6 @@ THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
 
 source ${THIS_DIR}/../../../bash/common/git-funs.sh
 
-function return_make_safekeeping_stash_name {
-    local timestamp=$1
-    local commit_sha=$2
-    echo "_nomis-cljfmt-v2-post-commit--${timestamp}--for-${commit_sha}"
-}
-
 function reformat_and_commit {
     echo 'Applying cljfmt formatting.'
     local user_commit_sha=$1
@@ -66,8 +60,7 @@ function post_commit {
         touch .git/_nomis-doing-post-commit-rewriting
 
         local THE_USER_COMMIT_SHA=$(git rev-parse HEAD)
-        local NOMIS_TIMESTAMP=$(date "+%Y-%m-%d--%H-%M-%S")
-        local STASH_NAME=$(return_make_safekeeping_stash_name ${NOMIS_TIMESTAMP} ${THE_USER_COMMIT_SHA})
+        local STASH_NAME=$(git__return_safekeeping_stash_name "_nomis-cljfmt-with-local-formatting" "post-commit" ${THE_USER_COMMIT_SHA})
 
         ## TODO Take a closer look at these stashes.
         ##      - Do they still seem to delete many files?

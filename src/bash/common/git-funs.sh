@@ -35,3 +35,11 @@ function git__return_top_commit_message {
     local n=$1
     echo $(git log --format=%s -n ${n} | tail -1)
 }
+
+function git__return_safekeeping_stash_name {
+    local kind=$1
+    local type=$2
+    local commit_sha=$3
+    local timestamp=$(date "+%Y-%m-%d--%H-%M-%S")
+    echo "${kind}--${timestamp}--for-${commit_sha}--${type}"
+}
