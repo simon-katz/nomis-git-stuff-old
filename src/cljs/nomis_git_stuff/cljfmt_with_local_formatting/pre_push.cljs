@@ -16,6 +16,10 @@
                            (git-funs/top-commit-message 2)))
   (println (gstring/format "commit message #3 = \"%s\""
                            (git-funs/top-commit-message 3)))
+  (println (gstring/format "safekeeping-stash-name = \"%s\""
+                           (git-funs/safekeeping-stash-name "the-kind"
+                                                            "the-type"
+                                                            "the-commit-sha")))
 
   (println "Hello World!")
 
