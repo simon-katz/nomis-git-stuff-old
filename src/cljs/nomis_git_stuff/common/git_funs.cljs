@@ -1,4 +1,4 @@
-(ns nomis-git-stuff.common.git-funs
+(ns nomis-git-stuff.common.git-funs ; TODO Rename `git-funs` -> `git`.
   (:require [cljs-time.core :as time]
             [cljs-time.format :as tf]
             [clojure.string :as str]
@@ -62,3 +62,10 @@
                   (make-timestamp)
                   commit-sha
                   type))
+
+(defn unpushed-commit-names [remote-name]
+  ;; TODO Add validation.
+  (-> (my-sh (str/join " "
+                       ["git log --format=%s"
+                        (str remote-name "/" (branch-name) "..HEAD")]))
+      (str/split \newline)))

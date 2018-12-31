@@ -9,8 +9,13 @@
   (println "command line args =" cljs.core/*command-line-args*)
 
   (let [[remote-name remote-location] cljs.core/*command-line-args*]
+    (println "remote-name =" remote-name)
+    (println "remote-location =" remote-location)
     (assert (= remote-name "origin") ; TODO Do you need this check?
-            "ERROR: This only works when there is a single remote and it is named \"origin\"."))
+            "ERROR: This only works when there is a single remote and it is named \"origin\".")
+    (let [unpushed-commit-names (git-funs/unpushed-commit-names remote-name)]
+      (println (gstring/format "unpushed-commit-names = %s"
+                               unpushed-commit-names))))
 
   (println (gstring/format "branch-name = \"%s\""
                            (git-funs/branch-name)))
