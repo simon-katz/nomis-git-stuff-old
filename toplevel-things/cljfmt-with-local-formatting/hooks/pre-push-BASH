@@ -6,7 +6,7 @@ source ${THIS_DIR}/../../../src/bash/common/git-funs.sh
 
 ## For now, things only work when there is a single remote and it is named
 ## "origin".
-for remote in $(git remote)
+for remote in $(git remote) # If you don't abandon this bash stuff, use the first command-line arg here
 do
     if [ $remote != "origin" ]
     then

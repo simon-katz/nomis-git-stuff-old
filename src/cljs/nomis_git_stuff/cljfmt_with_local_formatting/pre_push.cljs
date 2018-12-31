@@ -6,6 +6,12 @@
 
 (defn pre-push []
 
+  (println "command line args =" cljs.core/*command-line-args*)
+
+  (let [[remote-name remote-location] cljs.core/*command-line-args*]
+    (assert (= remote-name "origin") ; TODO Do you need this check?
+            "ERROR: This only works when there is a single remote and it is named \"origin\"."))
+
   (println (gstring/format "branch-name = \"%s\""
                            (git-funs/branch-name)))
   (println (gstring/format "top-stash-name = \"%s\""
@@ -25,10 +31,10 @@
 
   (println "stdin =" (core/slurp core/*in*))
 
-  (println "command line args =" cljs.core/*command-line-args*)
-
   ;; TODO If there's nothing to push, you won't get any lines on stdin.
   ;;      See https://stackoverflow.com/questions/22585091/git-hooks-pre-push-script-does-not-receive-input-via-stdin
+
+  (println (git-funs/my-sh "git remote"))
 
   (core/exit 1)
 
