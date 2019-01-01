@@ -15,8 +15,13 @@
 (defn bash-f [format-string & format-args]
   (bash (apply gstring/format format-string format-args)))
 
-(defn remove-trailing-newline [s] ; TODO This is broken for newlines in the middle of `s`
-  (str/replace s #"\n" ""))
+(defn remove-trailing-newline [s]
+  (str/replace s #"\n$" ""))
+
+(defn split-on-newline
+  "Split `s` into multiple strings, one for each line. Ignore any trailing blank lines."
+  [s]
+  (str/split s #"\n"))
 
 (defn branch-name []
   (-> (bash "git rev-parse --abbrev-ref HEAD")
@@ -68,4 +73,4 @@
   ;; TODO Add validation.
   (-> (bash "git log --format=%s"
             (str remote-name "/" (branch-name) "..HEAD"))
-      (str/split #"\n")))
+      (split-on-newline #"\n")))
