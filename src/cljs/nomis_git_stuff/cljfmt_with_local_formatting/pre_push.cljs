@@ -39,7 +39,7 @@
   ;; TODO If there's nothing to push, you won't get any lines on stdin.
   ;;      See https://stackoverflow.com/questions/22585091/git-hooks-pre-push-script-does-not-receive-input-via-stdin
 
-  (println (git-funs/my-sh "git remote"))
+  (println (git-funs/bash "git remote"))
 
   (core/exit 1)
 

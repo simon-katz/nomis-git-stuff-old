@@ -6,17 +6,20 @@
             [goog.string.format]
             [planck.shell :as shell]))
 
-(defn my-sh [command]
-  (let [res (shell/sh "/bin/bash" "-c" command)]
+(defn bash [& args]
+  (let [res (shell/sh "/bin/bash" "-c" (str/join " " args))]
     (if-not (zero? (:exit res))
       (throw (js/Error. (:err res)))
       (:out res))))
+
+(defn bash-f [format-string & format-args]
+  (bash (apply gstring/format format-string format-args)))
 
 (defn remove-trailing-newline [s] ; TODO This is broken for newlines in the middle of `s`
   (str/replace s #"\n" ""))
 
 (defn branch-name []
-  (-> (my-sh "git rev-parse --abbrev-ref HEAD")
+  (-> (bash "git rev-parse --abbrev-ref HEAD")
       remove-trailing-newline))
 
 (defn stash-if-dirty-include-untracked [message]
@@ -24,32 +27,30 @@
   ;; ##      - Do they still seem to delete many files?
   ;; ##        - It's with-local-formatting pre-push stashes.
   ;; ##          - They show deleted files in the "Untracked" section.
-  (my-sh (str/join " "
-                   ["git stash push"
-                    "--quiet"
-                    "--include-untracked"
-                    "--message" message])))
+  (bash "git stash push"
+        "--quiet"
+        "--include-untracked"
+        "--message" message))
 
 (defn git--replace-previous-n-commits-incl-staged [n
                                                    commit-sha]
   (println "Committing: Replacing last " n "commits with a single commit.")
-  (my-sh (gstring/format "git reset --quiet --soft HEAD~%s"
-                         n))
+  (bash "git reset --quiet --soft"
+        (str "HEAD~" n))
   ;; TODO You added `--allow-empty` here, but the behaviour from
   ;;      the local formatting post-commit hook was probably better before,
   ;;      because you just got an "apply-local-formatting" commit.
   ;;      When you rewrite this in CLJS, look into doing different things
   ;;      depending on whether anything is being committed.
-  (my-sh (str/join " "
-                   ["git commit --quiet --no-verify --allow-empty"
-                    "-C" commit-sha])))
+  (bash "git commit --quiet --no-verify --allow-empty"
+        "-C" commit-sha))
 
 (defn top-stash-name []
-  (-> (my-sh "git stash list --format=%s | head -1")
+  (-> (bash "git stash list --format=%s | head -1")
       remove-trailing-newline))
 
 (defn top-commit-message [n]
-  (-> (my-sh (str "git log --format=%s -n " n " | tail -1"))
+  (-> (bash "git log --format=%s -n " n " | tail -1")
       remove-trailing-newline))
 
 (defn make-timestamp []
@@ -65,7 +66,6 @@
 
 (defn unpushed-commit-names [remote-name]
   ;; TODO Add validation.
-  (-> (my-sh (str/join " "
-                       ["git log --format=%s"
-                        (str remote-name "/" (branch-name) "..HEAD")]))
-      (str/split \newline)))
+  (-> (bash "git log --format=%s"
+            (str remote-name "/" (branch-name) "..HEAD"))
+      (str/split #"\n")))
