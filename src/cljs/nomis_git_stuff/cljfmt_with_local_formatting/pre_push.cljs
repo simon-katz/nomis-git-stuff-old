@@ -69,7 +69,7 @@
   (println (gstring/format "remote-name from `git/remote-name` = \"%s\""
                            (git/remote-name)))
   (println "remote-location =" remote-location)
-  (println (gstring/format "push-info = \"%s\"" push-info))
+  (println (gstring/format "push-info = %s" push-info))
   (println (gstring/format "branch-name = \"%s\""
                            (git/branch-name)))
   (println (gstring/format "top-stash-name = \"%s\""
@@ -84,8 +84,10 @@
                            (git/safekeeping-stash-name "the-kind"
                                                        "the-type"
                                                        "the-commit-sha")))
-  (println (gstring/format "current-commit-sha = \"%s\""
+  (println (gstring/format "(git/current-commit-sha) = \"%s\""
                            (git/current-commit-sha)))
+  (println (gstring/format "(-> push-info first second) = \"%s\""
+                           (-> push-info first second)))
   (println "________________________________________"))
 
 (defn pre-push []
