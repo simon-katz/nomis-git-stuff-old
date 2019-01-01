@@ -26,7 +26,10 @@
 (defn run-some-testy-stuff [remote-name
                             remote-location
                             push-info]
-  (println "remote-name =" remote-name)
+  (println (gstring/format "remote-name from command-line parameters = \"%s\""
+                           remote-name))
+  (println (gstring/format "remote-name from `git/remote-name` = \"%s\""
+                           (git/remote-name)))
   (println "remote-location =" remote-location)
   (println (gstring/format "push-info = \"%s\"" push-info))
   (println (gstring/format "branch-name = \"%s\""
@@ -55,7 +58,6 @@
     (run-some-testy-stuff remote-name
                           remote-location
                           push-info)
-    (println "git remote =" (git/bash "git remote"))
 
     (assert (= remote-name "origin") ; TODO Do you need this check?
             "ERROR: This only works when there is a single remote and it is named \"origin\".")

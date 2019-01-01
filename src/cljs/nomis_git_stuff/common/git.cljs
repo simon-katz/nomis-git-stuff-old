@@ -27,6 +27,10 @@
   (-> (bash "git rev-parse --abbrev-ref HEAD")
       remove-trailing-newline))
 
+(defn remote-name []
+  (-> (bash "git remote") ; TODO Is there a better way (eg with rev-parse)?
+      remove-trailing-newline))
+
 (defn stash-if-dirty-include-untracked [message]
   ;; ## TODO Take a closer look at these stashes.
   ;; ##      - Do they still seem to delete many files?
