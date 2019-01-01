@@ -1,4 +1,4 @@
-(ns nomis-git-stuff.common.git-funs ; TODO Rename `git-funs` -> `git`.
+(ns nomis-git-stuff.common.git
   (:require [cljs-time.core :as time]
             [cljs-time.format :as tf]
             [clojure.string :as str]
