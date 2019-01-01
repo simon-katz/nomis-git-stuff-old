@@ -105,19 +105,23 @@
   ;; For details of command line args and stdin, see:
   ;; - https://git-scm.com/docs/githooks#_pre_push
   (let [[remote-name remote-location] cljs.core/*command-line-args*
-        push-info (stdin->push-info (core/slurp core/*in*))]
+        stdin                         (core/slurp core/*in*)
+        push-info                     (stdin->push-info stdin)]
     (run-some-testy-stuff remote-name
                           remote-location
                           push-info)
-    (when-not (zero? (count push-info))
-      (ensure-push-ok remote-name
-                      push-info)
-      (let [current-commit-sha (-> push-info first second)
-            stash-name         (git/safekeeping-stash-name
-                                "_nomis-cljfmt-with-local-formatting"
-                                "pre-push"
-                                current-commit-sha)]
-        (git/stash-if-dirty-include-untracked stash-name)
-        (let [ok? (formatting-ok?)]
-          (git/apply-stash-if-ends-with stash-name)
-          (core/exit (if ok? 0 1)))))))
+    (if (zero? (count push-info))
+      (do
+        (println "Nothing to push"))
+      (do
+        (ensure-push-ok remote-name
+                        push-info)
+        (let [current-commit-sha (-> push-info first second)
+              stash-name         (git/safekeeping-stash-name
+                                  "_nomis-cljfmt-with-local-formatting"
+                                  "pre-push"
+                                  current-commit-sha)]
+          (git/stash-if-dirty-include-untracked stash-name)
+          (let [ok? (formatting-ok?)]
+            (git/apply-stash-if-ends-with stash-name)
+            (core/exit (if ok? 0 1))))))))
