@@ -58,6 +58,17 @@
   (-> (bash "git stash list --format=%s | head -1")
       remove-trailing-newline))
 
+(defn apply-stash [] ; TODO Change this to pop when are sure all is OK.
+  (bash "git stash apply --quiet --index"))
+
+(defn apply-stash-if-ends-with [s]
+  (when (str/ends-with? (top-stash-name)
+                        ;; TODO Note difference between these two things.
+                        ;;      What's the best way to handle it?
+                        s)
+    ;; We created a stash; restore things.
+    (apply-stash)))
+
 (defn top-commit-message [n]
   (-> (bash "git log --format=%s -n " n " | tail -1")
       remove-trailing-newline))

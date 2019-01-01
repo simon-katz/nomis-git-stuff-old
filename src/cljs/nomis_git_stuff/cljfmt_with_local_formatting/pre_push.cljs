@@ -101,6 +101,15 @@
     (when-not (zero? (count push-info))
       (ensure-push-ok remote-name
                       push-info)
-      (println "Everything so far is OK.")
-      (core/exit 1) ; TODO for now
-      (println "SHOULDN'T SEE THIS."))))
+      (let [current-commit-sha (-> push-info first second)
+            stash-name         (git/safekeeping-stash-name
+                                "_nomis-cljfmt-with-local-formatting"
+                                "pre-push"
+                                current-commit-sha)]
+        (git/stash-if-dirty-include-untracked stash-name)
+        ;; check format
+        ;; We created a stash; restore things.
+        (git/apply-stash-if-ends-with stash-name)
+        (println "Everything so far is OK.")
+        (core/exit 1) ; TODO for now
+        (println "SHOULDN'T SEE THIS.")))))
