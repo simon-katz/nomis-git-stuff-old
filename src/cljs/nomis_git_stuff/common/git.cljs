@@ -21,7 +21,9 @@
 (defn split-on-newline
   "Split `s` into multiple strings, one for each line. Ignore any trailing blank lines."
   [s]
-  (str/split s #"\n"))
+  (if (= s "")
+    []
+    (str/split s #"\n")))
 
 (defn branch-name []
   (-> (bash "git rev-parse --abbrev-ref HEAD")
