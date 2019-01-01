@@ -2,8 +2,9 @@
   (:require [clojure.string :as str]
             [goog.string :as gstring]
             [goog.string.format]
+            [nomis-git-stuff.common.git :as git]
             [planck.core :as core]
-            [nomis-git-stuff.common.git :as git]))
+            [planck.shell :as shell]))
 
 (defn exit-with-error
   ([msg]
@@ -61,6 +62,16 @@
   (ensure-not-confused-about-what-is-being-pushed push-info)
   (ensure-not-pushing-local-formatting remote-name))
 
+(defn formatting-ok? []
+  (println "Checking formatting")
+  (let [m (shell/sh "/bin/bash" "-c" "lein cljfmt check > /dev/null 2>&1")
+        ok? (zero? (:exit m))]
+    (if ok?
+      (println "Formatting OK.")
+      (do
+        (println "Error: Bad formatting. cljfmt returned a non-zero exit status -- cannot push.")))
+    ok?))
+
 (defn run-some-testy-stuff [remote-name
                             remote-location
                             push-info]
@@ -107,9 +118,6 @@
                                 "pre-push"
                                 current-commit-sha)]
         (git/stash-if-dirty-include-untracked stash-name)
-        ;; check format
-        ;; We created a stash; restore things.
-        (git/apply-stash-if-ends-with stash-name)
-        (println "Everything so far is OK.")
-        (core/exit 1) ; TODO for now
-        (println "SHOULDN'T SEE THIS.")))))
+        (let [ok? (formatting-ok?)]
+          (git/apply-stash-if-ends-with stash-name)
+          (core/exit (if ok? 0 1)))))))
