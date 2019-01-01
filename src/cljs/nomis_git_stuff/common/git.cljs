@@ -58,6 +58,10 @@
   (-> (bash "git log --format=%s -n " n " | tail -1")
       remove-trailing-newline))
 
+(defn current-commit-sha []
+  (-> (bash "git rev-parse HEAD")
+      remove-trailing-newline))
+
 (defn make-timestamp []
   (tf/unparse (tf/formatter "yyyy-MM-dd--hh-mm-ss")
               (time/now)))

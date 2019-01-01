@@ -12,17 +12,23 @@
    (println "Error:" msg) ; Can we write to stderr?
    (core/exit status-code)))
 
+(defn split-on-newline [s] (str/split s #"\n"))
+
+(defn split-on-space   [s] (str/split s #" "))
+
+(defn stdin->push-info [s]
+  (map split-on-space
+       (split-on-newline s)))
+
 (defn local-formatting-commit-message? [s]
   (str/starts-with? s "apply-local-formatting"))
 
 (defn run-some-testy-stuff [remote-name
                             remote-location
-                            stdin]
+                            push-info]
   (println "remote-name =" remote-name)
   (println "remote-location =" remote-location)
-  ;; TODO If there's nothing to push, you won't get any lines on stdin.
-  ;;      See https://stackoverflow.com/questions/22585091/git-hooks-pre-push-script-does-not-receive-input-via-stdin
-  (println (gstring/format "stdin = \"%s\"" stdin))
+  (println (gstring/format "push-info = \"%s\"" push-info))
   (println (gstring/format "branch-name = \"%s\""
                            (git/branch-name)))
   (println (gstring/format "top-stash-name = \"%s\""
@@ -37,19 +43,35 @@
                            (git/safekeeping-stash-name "the-kind"
                                                        "the-type"
                                                        "the-commit-sha")))
+  (println (gstring/format "current-commit-sha = \"%s\""
+                           (git/current-commit-sha)))
   (println "________________________________________"))
 
 (defn pre-push []
+  ;; For details of command line args and stdin, see:
+  ;; - https://git-scm.com/docs/githooks#_pre_push
   (let [[remote-name remote-location] cljs.core/*command-line-args*
-        stdin (core/slurp core/*in*)]
+        push-info (stdin->push-info (core/slurp core/*in*))]
     (run-some-testy-stuff remote-name
                           remote-location
-                          stdin)
+                          push-info)
     (println "git remote =" (git/bash "git remote"))
-
 
     (assert (= remote-name "origin") ; TODO Do you need this check?
             "ERROR: This only works when there is a single remote and it is named \"origin\".")
+
+    (let [n-things-being-pushed (count push-info)]
+      (when (not= n-things-being-pushed 1)
+        (exit-with-error
+         (gstring/format
+          "Don't know what to do unless a single thing is being pushed. We have %s: %s"
+          n-things-being-pushed
+          push-info))))
+
+    (assert (= (git/current-commit-sha)
+               (-> push-info first second))
+            "Confused about what is being pushed.")
+
     (let [unpushed-commit-names (git/unpushed-commit-names remote-name)]
       (println (gstring/format "unpushed-commit-names = %s"
                                unpushed-commit-names))
