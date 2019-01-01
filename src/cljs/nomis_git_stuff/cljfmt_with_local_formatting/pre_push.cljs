@@ -20,8 +20,47 @@
   (map split-on-space
        (split-on-newline s)))
 
+(defn ensure-remote-name-ok [remote-name]
+  (assert (= remote-name "origin") ; TODO Do you need this check?
+          "ERROR: This only works when there is a single remote and it is named \"origin\"."))
+
+(defn ensure-n-things-being-pushed-ok [push-info]
+  (let [n-things-being-pushed (count push-info)]
+    (when (not= n-things-being-pushed 1)
+      (exit-with-error
+       (gstring/format
+        "Don't know what to do unless a single thing is being pushed. We have %s: %s"
+        n-things-being-pushed
+        push-info)))))
+
+(defn ensure-not-confused-about-what-is-being-pushed [push-info]
+  (assert (= (git/current-commit-sha)
+             (-> push-info first second))
+          "Confused about what is being pushed."))
+
 (defn local-formatting-commit-message? [s]
   (str/starts-with? s "apply-local-formatting"))
+
+(defn ensure-not-pushing-local-formatting [remote-name]
+  ;; TODO Maybe you should be using the `push-info` to get the commits.
+  ;;      But then would you need a git call for each commit to get the commit
+  ;;      messages?
+  (let [unpushed-commit-names (git/unpushed-commit-names remote-name)]
+    (println (gstring/format "unpushed-commit-names = %s"
+                             unpushed-commit-names))
+    (when (some local-formatting-commit-message?
+                unpushed-commit-names)
+      (exit-with-error
+       (str/join " "
+                 ["Cannot push an \"apply-local-formatting\" commit."
+                  "You may want the \"nomis-cljfmt-v2-git-push\" command."])))))
+
+(defn ensure-push-ok [remote-name
+                      push-info]
+  (ensure-remote-name-ok remote-name)
+  (ensure-n-things-being-pushed-ok push-info)
+  (ensure-not-confused-about-what-is-being-pushed push-info)
+  (ensure-not-pushing-local-formatting remote-name))
 
 (defn run-some-testy-stuff [remote-name
                             remote-location
@@ -58,32 +97,7 @@
     (run-some-testy-stuff remote-name
                           remote-location
                           push-info)
-
-    (assert (= remote-name "origin") ; TODO Do you need this check?
-            "ERROR: This only works when there is a single remote and it is named \"origin\".")
-
-    (let [n-things-being-pushed (count push-info)]
-      (when (not= n-things-being-pushed 1)
-        (exit-with-error
-         (gstring/format
-          "Don't know what to do unless a single thing is being pushed. We have %s: %s"
-          n-things-being-pushed
-          push-info))))
-
-    (assert (= (git/current-commit-sha)
-               (-> push-info first second))
-            "Confused about what is being pushed.")
-
-    (let [unpushed-commit-names (git/unpushed-commit-names remote-name)]
-      (println (gstring/format "unpushed-commit-names = %s"
-                               unpushed-commit-names))
-      (when (some local-formatting-commit-message?
-                  unpushed-commit-names)
-        (exit-with-error
-         (str/join " "
-                   ["Cannot push an \"apply-local-formatting\" commit."
-                    "You may want the \"nomis-cljfmt-v2-git-push\" command."]))))
-
+    (ensure-push-ok remote-name
+                    push-info)
     (core/exit 1) ; TODO for now
-
     (println "SHOULDN'T SEE THIS.")))
