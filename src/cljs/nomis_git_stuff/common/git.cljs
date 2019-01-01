@@ -67,7 +67,7 @@
       remove-trailing-newline))
 
 (defn make-timestamp []
-  (tf/unparse (tf/formatter "yyyy-MM-dd--hh-mm-ss")
+  (tf/unparse (tf/formatter "yyyy-MM-dd--HH-mm-ss")
               (time/now)))
 
 (defn safekeeping-stash-name [kind type commit-sha]
