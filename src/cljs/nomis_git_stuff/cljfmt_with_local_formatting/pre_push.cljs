@@ -96,7 +96,9 @@
     (run-some-testy-stuff remote-name
                           remote-location
                           push-info)
-    (ensure-push-ok remote-name
-                    push-info)
-    (core/exit 1) ; TODO for now
-    (println "SHOULDN'T SEE THIS.")))
+    (when-not (zero? (count push-info))
+      (ensure-push-ok remote-name
+                      push-info)
+      (println "Everything so far is OK.")
+      (core/exit 1) ; TODO for now
+      (println "SHOULDN'T SEE THIS."))))
