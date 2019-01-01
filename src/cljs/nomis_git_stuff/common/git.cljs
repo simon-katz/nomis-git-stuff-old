@@ -73,4 +73,4 @@
   ;; TODO Add validation.
   (-> (bash "git log --format=%s"
             (str remote-name "/" (branch-name) "..HEAD"))
-      (split-on-newline #"\n")))
+      split-on-newline))
