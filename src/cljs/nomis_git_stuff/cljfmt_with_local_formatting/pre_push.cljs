@@ -12,8 +12,7 @@
    (println "Error:" msg) ; Can we write to stderr?
    (core/exit status-code)))
 
-(defn split-on-newline [s] (str/split s #"\n"))
-
+(defn split-on-newline [s] (if (= s "") [] (str/split s #"\n")))
 (defn split-on-space   [s] (str/split s #" "))
 
 (defn stdin->push-info [s]
