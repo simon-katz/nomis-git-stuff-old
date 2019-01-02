@@ -3,22 +3,13 @@
             [goog.string :as gstring]
             [goog.string.format]
             [nomis-git-stuff.common.git :as git]
+            [nomis-git-stuff.common.utils :as u]
             [planck.core :as core]
             [planck.shell :as shell]))
 
-(defn exit-with-error
-  ([msg]
-   (exit-with-error msg 1))
-  ([msg status-code]
-   (println "Error:" msg) ; Can we write to stderr?
-   (core/exit status-code)))
-
-(defn split-on-newline [s] (if (= s "") [] (str/split s #"\n")))
-(defn split-on-space   [s] (str/split s #" "))
-
 (defn stdin->push-info [s]
-  (map split-on-space
-       (split-on-newline s)))
+  (map u/split-on-space
+       (u/split-on-newline s)))
 
 (defn ensure-remote-name-ok [remote-name]
   (assert (= remote-name "origin") ; TODO Do you need this check?
@@ -27,7 +18,7 @@
 (defn ensure-n-things-being-pushed-ok [push-info]
   (let [n-things-being-pushed (count push-info)]
     (when (not= n-things-being-pushed 1)
-      (exit-with-error
+      (u/exit-with-error
        (gstring/format
         "Don't know what to do unless a single thing is being pushed. We have %s: %s"
         n-things-being-pushed
@@ -50,7 +41,7 @@
                              unpushed-commit-names))
     (when (some local-formatting-commit-message?
                 unpushed-commit-names)
-      (exit-with-error
+      (u/exit-with-error
        (str/join " "
                  ["Cannot push an \"apply-local-formatting\" commit."
                   "You may want the \"nomis-cljfmt-v2-git-push\" command."])))))
