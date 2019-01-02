@@ -82,15 +82,15 @@
               (str remote-name "/" (branch-name) "..HEAD"))
       u/split-on-newline))
 
-(defn changed-files--one-per-line [x-1 x-2] ; TODO Are these called "refs"?
-  (u/bash "git diff-tree --no-commit-id --name-only -r" x-1 x-2))
+(defn changed-files--one-per-line [ref-1 ref-2]
+  (u/bash "git diff-tree --no-commit-id --name-only -r" ref-1 ref-2))
 
-(defn changed-files [x-1 x-2] ; TODO Are these called "refs"?
-  (-> (changed-files--one-per-line x-1 x-2)
+(defn changed-files [ref-1 ref-2]
+  (-> (changed-files--one-per-line ref-1 ref-2)
       u/split-on-newline))
 
-(defn changed-files--single-line [x-1 x-2] ; TODO Are these called "refs"?
-  (-> (changed-files--one-per-line x-1 x-2)
+(defn changed-files--single-line [ref-1 ref-2]
+  (-> (changed-files--one-per-line ref-1 ref-2)
       u/remove-trailing-newline
       (str/replace "\n" " ")))
 
