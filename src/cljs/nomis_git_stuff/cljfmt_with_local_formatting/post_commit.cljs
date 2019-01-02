@@ -14,6 +14,12 @@
 (defn local-formatting-commit-message? [s] ; TODO Copy/paste from other hook.
   (str/starts-with? s "apply-local-formatting"))
 
+(defn clojure-ish-file? [s]
+  (or (str/ends-with? s ".clj")
+      (str/ends-with? s ".cljs")
+      (str/ends-with? s ".cljx")
+      (str/ends-with? s ".cljc")))
+
 (defn reformat-and-commit [user-commit-sha]
   ;; For details of command line args and stdin, see:
   ;; - https://git-scm.com/docs/githooks#_post_commit
@@ -22,10 +28,11 @@
   ;; # There's a possibility here of exceeding the maximum shell command length.
   ;; # - TODO Make sure you detect and report any such error.
   ;; # - If this is a problem, don't create and use `changed_files`.
-  (let [changed-files (git/changed-files--single-line (str user-commit-sha
-                                                           "~2")
-                                                      user-commit-sha)]
-    (println "#### changed-files =" changed-files)
+  (let [changed-files (->> (git/changed-files (str user-commit-sha "~2")
+                                              user-commit-sha)
+                           (filter clojure-ish-file?)
+                           (str/join " "))]
+    (println "The changed Clojure files are:" changed-files)
     (u/bash "lein cljfmt fix" changed-files))
   (git/add ".")
   (println "Committing: cljfmt formatting.")
@@ -54,7 +61,6 @@
            (git/top-commit-message 2)))
 
 (defn post-commit []
-  (println "#### HELLO FROM CLJS")
   (cond
     (u/file-exists? doing-post-commit-rewriting-filename)
     (print-in-nested-post-commit-hook-message)
