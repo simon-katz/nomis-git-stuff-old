@@ -95,3 +95,35 @@
   (-> (bash "git log --format=%s"
             (str remote-name "/" (branch-name) "..HEAD"))
       split-on-newline))
+
+;;;; ___________________________________________________________________________
+
+(defn run-some-testy-stuff [remote-name-from-command-line
+                            remote-location
+                            push-info]
+  (println "________________________________________")
+  (println (gstring/format "remote-name-from-command-line = \"%s\""
+                           remote-name-from-command-line))
+  (println (gstring/format "(remote-name)  = \"%s\""
+                           (remote-name)))
+  (println "remote-location =" remote-location)
+  (println (gstring/format "push-info = %s" push-info))
+  (println (gstring/format "branch-name = \"%s\""
+                           (branch-name)))
+  (println (gstring/format "top-stash-name = \"%s\""
+                           (top-stash-name)))
+  (println (gstring/format "commit message #1 = \"%s\""
+                           (top-commit-message 1)))
+  (println (gstring/format "commit message #2 = \"%s\""
+                           (top-commit-message 2)))
+  (println (gstring/format "commit message #3 = \"%s\""
+                           (top-commit-message 3)))
+  (println (gstring/format "safekeeping-stash-name = \"%s\""
+                           (safekeeping-stash-name "the-kind"
+                                                   "the-type"
+                                                   "the-commit-sha")))
+  (println (gstring/format "(current-commit-sha) = \"%s\""
+                           (current-commit-sha)))
+  (println (gstring/format "(-> push-info first second) = \"%s\""
+                           (-> push-info first second)))
+  (println "________________________________________"))

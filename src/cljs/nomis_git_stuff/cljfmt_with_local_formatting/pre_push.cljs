@@ -72,44 +72,13 @@
         (println "Error: Bad formatting. cljfmt returned a non-zero exit status -- cannot push.")))
     ok?))
 
-(defn run-some-testy-stuff [remote-name
-                            remote-location
-                            push-info]
-  (println (gstring/format "remote-name from command-line parameters = \"%s\""
-                           remote-name))
-  (println (gstring/format "remote-name from `git/remote-name` = \"%s\""
-                           (git/remote-name)))
-  (println "remote-location =" remote-location)
-  (println (gstring/format "push-info = %s" push-info))
-  (println (gstring/format "branch-name = \"%s\""
-                           (git/branch-name)))
-  (println (gstring/format "top-stash-name = \"%s\""
-                           (git/top-stash-name)))
-  (println (gstring/format "commit message #1 = \"%s\""
-                           (git/top-commit-message 1)))
-  (println (gstring/format "commit message #2 = \"%s\""
-                           (git/top-commit-message 2)))
-  (println (gstring/format "commit message #3 = \"%s\""
-                           (git/top-commit-message 3)))
-  (println (gstring/format "safekeeping-stash-name = \"%s\""
-                           (git/safekeeping-stash-name "the-kind"
-                                                       "the-type"
-                                                       "the-commit-sha")))
-  (println (gstring/format "(git/current-commit-sha) = \"%s\""
-                           (git/current-commit-sha)))
-  (println (gstring/format "(-> push-info first second) = \"%s\""
-                           (-> push-info first second)))
-  (println "________________________________________"))
-
 (defn pre-push []
   ;; For details of command line args and stdin, see:
   ;; - https://git-scm.com/docs/githooks#_pre_push
   (let [[remote-name remote-location] cljs.core/*command-line-args*
         stdin                         (core/slurp core/*in*)
         push-info                     (stdin->push-info stdin)]
-    (run-some-testy-stuff remote-name
-                          remote-location
-                          push-info)
+    (git/run-some-testy-stuff remote-name remote-location push-info)
     (if (zero? (count push-info))
       (do
         (println "Nothing to push"))
