@@ -24,7 +24,7 @@
 
 (defn replace-previous-n-commits-incl-staged [n
                                               commit-sha]
-  (println "Committing: Replacing last " n "commits with a single commit.")
+  (println "Committing: Replacing last" n "commits with a single commit.")
   (u/bash "git reset --quiet --soft"
           (str "HEAD~" n))
   ;; TODO You added `--allow-empty` here, but the behaviour from
@@ -38,6 +38,17 @@
 (defn top-stash-name []
   (-> (u/bash "git stash list --format=%s | head -1")
       u/remove-trailing-newline))
+
+(defn apply-stash--not-index [] ; TODO Change this to pop when are sure all is OK.
+  (u/bash "git stash apply --quiet"))
+
+(defn apply-stash-if-ends-with--not-index [s]
+  (when (str/ends-with? (top-stash-name)
+                        ;; TODO Note difference between these two things.
+                        ;;      What's the best way to handle it?
+                        s)
+    ;; We created a stash; restore things.
+    (apply-stash--not-index)))
 
 (defn apply-stash [] ; TODO Change this to pop when are sure all is OK.
   (u/bash "git stash apply --quiet --index"))
@@ -70,6 +81,21 @@
   (-> (u/bash "git log --format=%s"
               (str remote-name "/" (branch-name) "..HEAD"))
       u/split-on-newline))
+
+(defn changed-files--one-per-line [x-1 x-2] ; TODO Are these called "refs"?
+  (u/bash "git diff-tree --no-commit-id --name-only -r" x-1 x-2))
+
+(defn changed-files--single-line [x-1 x-2] ; TODO Are these called "refs"?
+  (-> (changed-files--one-per-line x-1 x-2)
+      u/remove-trailing-newline
+      (str/replace "\n" " ")))
+
+(defn add [path]
+  (u/bash "git add" path))
+
+(defn commit--quiet--no-verify--allow-empty [message]
+  (u/bash "git commit --quiet --no-verify --allow-empty -m"
+          message))
 
 ;;;; ___________________________________________________________________________
 

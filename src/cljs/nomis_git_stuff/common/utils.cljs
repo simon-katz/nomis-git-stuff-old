@@ -5,6 +5,7 @@
             [goog.string :as gstring]
             [goog.string.format]
             [planck.core :as core]
+            [planck.io :as io]
             [planck.shell :as shell]))
 
 (defn exit-with-error
@@ -39,3 +40,15 @@
 (defn make-timestamp []
   (tf/unparse (tf/formatter "yyyy-MM-dd--HH-mm-ss")
               (time/now)))
+
+(defn file-exists? [s]
+  (case 2
+    1 (-> (shell/sh "/bin/bash" "-c"
+                    (gstring/format "[ -f %s ]"
+                                    s))
+          :exit
+          zero?)
+    2 (not (nil? (io/file-attributes s)))))
+
+(defn touch [s]
+  (bash "touch" s))
