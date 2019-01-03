@@ -7,12 +7,16 @@
             [planck.core :as core]
             [planck.shell :as shell]))
 
+;;;; TODO Review all code checking for assumptions such as:
+;;;;      - Do we assume that a certain number of commits exist?
+;;;;      - Do we assume that there is a remote?
+
 (defn stdin->push-info [s]
   (map u/split-on-space
        (u/split-on-newline s)))
 
 (defn ensure-remote-name-ok [remote-name]
-  (assert (= remote-name "origin") ; TODO Do you need this check?
+  (assert (= remote-name "origin") ; TODO Do you need this check? I don't think so.
           "ERROR: This only works when there is a single remote and it is named \"origin\"."))
 
 (defn ensure-n-things-being-pushed-ok [push-info]
