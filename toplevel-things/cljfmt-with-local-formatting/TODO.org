@@ -1,6 +1,8 @@
 * cljfmt-v2
 ** Need to look at what happens when there is no remote set up
 ** Make sure error messages go to stderr
+*** See planck.core/*err*
+**** Used in [[https://github.com/planck-repl/planck/blob/master/planck-cljs/test/planck/io_test.cljs][io_test.cljs]]
 ** Fixes / robustness
 *** pre-commit
 **** If the current commit is apply-local-formatting*, check it is not pushed
