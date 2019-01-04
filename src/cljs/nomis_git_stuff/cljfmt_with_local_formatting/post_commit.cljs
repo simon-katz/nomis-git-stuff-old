@@ -21,9 +21,6 @@
       (str/ends-with? s ".cljc")))
 
 (defn reformat-and-commit [user-commit-sha]
-  ;; For details of command line args and stdin, see:
-  ;; - https://git-scm.com/docs/githooks#_post_commit
-  ;; (There are no args and no stdin.)
   (println "Applying cljfmt formatting.")
   ;; # There's a possibility here of exceeding the maximum shell command length.
   ;; # - TODO Make sure you detect and report any such error.
@@ -61,6 +58,9 @@
            (git/top-commit-message 2)))
 
 (defn post-commit []
+  ;; For details of command line args and stdin, see:
+  ;; - https://git-scm.com/docs/githooks#_post_commit
+  ;; (There are no args and no stdin.)
   (cond
     (u/file-exists? doing-post-commit-rewriting-filename)
     (print-in-nested-post-commit-hook-message)
