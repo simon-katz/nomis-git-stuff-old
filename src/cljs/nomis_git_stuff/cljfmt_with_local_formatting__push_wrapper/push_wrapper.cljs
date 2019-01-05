@@ -9,7 +9,7 @@
             [planck.shell :as shell]))
 
 (defn stash [stash-name]
-  (println "Stashing if dirty.")
+  (println "Stashing if dirty")
   (git/stash-if-dirty-include-untracked stash-name))
 
 (defn reset-to-remote-commit [ref]
@@ -17,7 +17,7 @@
   (git/reset-hard ref))
 
 (defn reformat-and-commit-if-dirty [sha for-remote-commit?]
-  (println "    Applying cljfmt formatting.")
+  (println "    Applying cljfmt formatting")
   (u/bash "lein cljfmt fix")
   (git/add ".")
   (if-not (git/dirty?)
@@ -35,7 +35,7 @@
   (git/checkout-pathspec=dot sha))
 
 (defn push []
-  (println "Pushing.")
+  (println "Pushing")
   (git/push "--no-verify"))
 
 (defn set-index-to-as-it-was [user-commit-sha]
@@ -43,19 +43,14 @@
 
 (defn maybe-create-local-formatting-commit [user-commit-sha]
   (when (git/dirty?)
-    (println "Committing: apply-local-formatting.")
+    (println "Committing: apply-local-formatting")
     (git/commit--quiet--no-verify--allow-empty "apply-local-formatting")))
 
 (defn restore-uncommitted-changes [stash-name]
-  (println "Restoring any uncommitted changes.")
+  (println "Restoring any uncommitted changes")
   (git/apply-stash-if-ends-with--not-index stash-name))
 
 (defn push-wrapper []
-  (git/run-some-testy-stuff "dummy-remote-name-from-command-line"
-                            "dummy-remote-location"
-                            [])
-  (println "==== push-wrapper stdout")
-  (u/err-println "==== push-wrapper stderr")
   (let [remote-name        (git/remote-name)
         branch-name        (git/branch-name)
         ;; TODO Are you are making assumptions about the name of the

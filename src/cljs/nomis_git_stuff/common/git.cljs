@@ -43,7 +43,7 @@
 
 (defn replace-previous-n-commits-incl-staged [n
                                               commit-sha]
-  (println "Committing: Replacing last" n "commits with a single commit.")
+  (println "Committing: Replacing last" n "commits with a single commit")
   (u/bash "git reset --quiet --soft"
           (str "HEAD~" n))
   ;; TODO You added `--allow-empty` here, but the behaviour from
