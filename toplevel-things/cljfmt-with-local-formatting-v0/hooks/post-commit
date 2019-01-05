@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 "exec" "plk" "-Sdeps" "{:paths [\"${HOME}/nomis-git-stuff/src/cljs\"] :deps {com.andrewmcveigh/cljs-time {:mvn/version \"0.5.2\"}}}" "$0" "$@"
 
-(ns nomis-git-stuff.cljfmt-with-local-formatting.hooks.post-commit
-  (:require [nomis-git-stuff.cljfmt-with-local-formatting.post-commit :as post-commit]))
+(ns bash-sript-for-nomis-git-stuff.cljfmt-with-local-formatting-v0.post-commit
+  (:require [nomis-git-stuff.cljfmt-with-local-formatting-v0.post-commit :as post-commit]))
 
 (post-commit/post-commit)

@@ -1,4 +1,4 @@
-(ns nomis-git-stuff.cljfmt-with-local-formatting.pre-push
+(ns nomis-git-stuff.cljfmt-with-local-formatting-v0.pre-push
   (:require [clojure.string :as str]
             [goog.string :as gstring]
             [goog.string.format]
@@ -48,7 +48,7 @@
       (u/exit-with-error
        (str/join " "
                  ["Cannot push an \"apply-local-formatting\" commit."
-                  "You may want the \"nomis-cljfmt-v2-git-push\" command."])))))
+                  "You may want the \"nomis-cljfmt-with-local-formatting-v0-git-push\" command."])))))
 
 (defn ensure-push-ok [remote-name
                       push-info]
@@ -82,7 +82,7 @@
                         push-info)
         (let [current-commit-sha (-> push-info first second)
               stash-name         (git/safekeeping-stash-name
-                                  "_nomis-cljfmt-with-local-formatting"
+                                  "_nomis-cljfmt-with-local-formatting-v0"
                                   "pre-push"
                                   current-commit-sha)]
           (git/stash-if-dirty-include-untracked stash-name)

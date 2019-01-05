@@ -28,7 +28,7 @@ for commit_msg in $(return_unpushed_commit_names)
 do
     if [[ ${commit_msg} == apply-local-formatting* ]]
     then
-        echo 'Cannot push an "apply-local-formatting" commit. You may want the "nomis-cljfmt-v2-git-push" command.'
+        echo 'Cannot push an "apply-local-formatting" commit. You may want the "nomis-cljfmt-with-local-formatting-v0-git-push" command.'
         exit 1
     fi
 done
@@ -36,7 +36,7 @@ done
 ## Stash everything temporarily.
 ## Note that this doesn't create a stash if there are no changes.
 THE_CURRENT_COMMIT_SHA=$(git rev-parse HEAD)
-STASH_NAME=$(git__return_safekeeping_stash_name "_nomis-cljfmt-with-local-formatting" "pre-push" ${THE_CURRENT_COMMIT_SHA})
+STASH_NAME=$(git__return_safekeeping_stash_name "_nomis-cljfmt-with-local-formatting-v0" "pre-push" ${THE_CURRENT_COMMIT_SHA})
 git__stash_if_dirty_include_untracked "${STASH_NAME}"
 
 ## Do the checks and let the user know about any failure:

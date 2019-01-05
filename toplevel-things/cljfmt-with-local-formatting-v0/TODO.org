@@ -1,4 +1,4 @@
-* cljfmt-v2
+* cljfmt-with-local-formatting-v0
 ** Need to look at what happens when there is no remote set up
 ** Make sure error messages go to stderr
 *** See planck.core/*err*

@@ -1,4 +1,4 @@
-(ns nomis-git-stuff.cljfmt-with-local-formatting.post-commit
+(ns nomis-git-stuff.cljfmt-with-local-formatting-v0.post-commit
   (:require [clojure.string :as str]
             [goog.string :as gstring]
             [goog.string.format]
@@ -77,7 +77,7 @@
       (u/touch doing-post-commit-rewriting-filename)
       (let [user-commit-sha (git/current-commit-sha)
             stash-name      (git/safekeeping-stash-name
-                             "_nomis-cljfmt-with-local-formatting"
+                             "_nomis-cljfmt-with-local-formatting-v0"
                              "post-commit"
                              user-commit-sha)]
         (git/stash-if-dirty-include-untracked stash-name)

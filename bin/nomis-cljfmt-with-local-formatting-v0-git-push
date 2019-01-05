@@ -18,7 +18,7 @@ else
     ## Stash everything temporarily.
     ## Note that this doesn't create a stash if there are no changes.
     THE_CURRENT_COMMIT_SHA=$(git rev-parse HEAD)
-    STASH_NAME=$(git__return_safekeeping_stash_name "_nomis-cljfmt-with-local-formatting" "special-push" ${THE_CURRENT_COMMIT_SHA})
+    STASH_NAME=$(git__return_safekeeping_stash_name "_nomis-cljfmt-with-local-formatting-v0" "special-push" ${THE_CURRENT_COMMIT_SHA})
     git stash push \
         --quiet \
         --include-untracked \
