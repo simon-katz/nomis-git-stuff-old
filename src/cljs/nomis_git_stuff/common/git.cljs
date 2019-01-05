@@ -18,7 +18,8 @@
     (first remotes)))
 
 (defn dirty? []
-  (not= (u/bash "git status --porcelain")
+  (not= (-> (u/bash "git status --porcelain")
+            u/remove-trailing-newline)
         ""))
 
 (defn stash-if-dirty-include-untracked [message]

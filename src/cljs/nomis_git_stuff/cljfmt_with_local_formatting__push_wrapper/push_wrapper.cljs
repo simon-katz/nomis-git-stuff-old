@@ -13,30 +13,26 @@
   (git/stash-if-dirty-include-untracked stash-name))
 
 (defn reset-to-remote-commit [ref]
-  (println "Resetting (hard) to remote commit" ref)
+  (println "    Resetting (hard) to remote commit")
   (git/reset-hard ref))
 
-(defn reformat-and-commit-if-dirty []
-  (println "Applying cljfmt formatting.")
-  (u/bash "lein cljfmt fix")
-  (if-not (git/dirty?)
-    (println "    cljfmt formatting made no changes.")
-    (do
-      (println "    Committing: apply-cljfmt-formatting.")
-      (git/add ".")
-      (git/commit--quiet--no-verify--allow-empty "apply-cljfmt-formatting"))))
-
-(defn checkout-and-reformat-and-commit-if-dirty [sha]
-  (println "    Checking out" sha)
-  (git/checkout-pathspec=dot sha)
+(defn reformat-and-commit-if-dirty [sha for-remote-commit?]
   (println "    Applying cljfmt formatting.")
   (u/bash "lein cljfmt fix")
+  (git/add ".")
   (if-not (git/dirty?)
-    (println "    Repo is clean -- not committing for" sha)
+    (println "    cljfmt formatting made no changes -- not committing")
     (do
-      (println "    Committing for" sha)
-      (git/add ".")
-      (git/commit--quiet--no-verify--allow-empty-v2 "-C" sha))))
+      (println (if for-remote-commit?
+                 "    Committing: apply-cljfmt-formatting"
+                 "    Committing"))
+      (if for-remote-commit?
+        (git/commit--quiet--no-verify--allow-empty "apply-cljfmt-formatting")
+        (git/commit--quiet--no-verify--allow-empty-v2 "-C" sha)))))
+
+(defn checkout [sha]
+  (println "    Checking out")
+  (git/checkout-pathspec=dot sha))
 
 (defn push []
   (println "Pushing.")
@@ -79,12 +75,20 @@
                           user-commit-sha)]
           (do
             (stash stash-name)
+            (println "Processing remote commit"
+                     remote-branch-name
+                     (git/->sha remote-branch-name)
+                     (git/ref->commit-message remote-branch-name))
             (reset-to-remote-commit remote-branch-name)
-            (reformat-and-commit-if-dirty)
+            (reformat-and-commit-if-dirty pushed-sha true)
             (doseq [sha unpushed-shas]
               (println "Processing" sha (git/ref->commit-message sha))
-              (checkout-and-reformat-and-commit-if-dirty sha))
+              (checkout sha)
+              (reformat-and-commit-if-dirty sha false))
             (push)
             (set-index-to-as-it-was user-commit-sha)
             (maybe-create-local-formatting-commit user-commit-sha)
             (restore-uncommitted-changes stash-name)))))))
+
+;;;; TODO What happens when we need to force-push?
+;;;;      The sequence of commits we get will be empty.
