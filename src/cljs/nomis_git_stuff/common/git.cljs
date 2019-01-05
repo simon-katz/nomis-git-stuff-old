@@ -8,9 +8,18 @@
   (-> (u/bash "git rev-parse --abbrev-ref HEAD")
       u/remove-trailing-newline))
 
-(defn remote-name []
+(defn remote-names []
   (-> (u/bash "git remote") ; TODO Is there a better way (eg with rev-parse)?
-      u/remove-trailing-newline))
+      u/split-on-newline))
+
+(defn remote-name []
+  (let [remotes (remote-names)]
+    (assert (= (count remotes) 1))
+    (first remotes)))
+
+(defn dirty? []
+  (not= (u/bash "git status --porcelain")
+        ""))
 
 (defn stash-if-dirty-include-untracked [message]
   ;; ## TODO Take a closer look at these stashes.
@@ -21,6 +30,15 @@
           "--quiet"
           "--include-untracked"
           "--message" message))
+
+(defn reset-hard [ref]
+  (u/bash "git reset --quiet --hard" ref))
+
+(defn reset-soft [ref]
+  (u/bash "git reset --quiet --soft" ref))
+
+(defn checkout-pathspec=dot [tree-ish]
+  (u/bash "git checkout --quiet" tree-ish "."))
 
 (defn replace-previous-n-commits-incl-staged [n
                                               commit-sha]
@@ -61,6 +79,10 @@
     ;; We created a stash; restore things.
     (apply-stash)))
 
+(defn ref->commit-message [ref]
+  (-> (u/bash "git show -s --format=%s" ref)
+      u/remove-trailing-newline))
+
 (defn top-commit-message [n]
   (-> (u/bash "git log --format=%s -n " n " | tail -1")
       u/remove-trailing-newline))
@@ -76,9 +98,22 @@
                   commit-sha
                   type))
 
-(defn unpushed-commit-names [remote-name]
+(defn ->sha [ref]
+  (-> (u/bash "git rev-parse" ref)
+      u/remove-trailing-newline))
+
+(defn range->shas [ref-1 ref-2]
+  (-> (u/bash "git rev-list --reverse" (str ref-1 ".." ref-2))
+      u/split-on-newline))
+
+(defn unpushed-commit-shas [remote-name]
   ;; TODO Add validation.
-  (-> (u/bash "git log --format=%s"
+  (range->shas (str remote-name "/" (branch-name))
+               "HEAD"))
+
+(defn unpushed-commit-names [remote-name] ; TODO Should use `git rev-list`.
+  ;; TODO Add validation.
+  (-> (u/bash "git log --reverse --format=%s"
               (str remote-name "/" (branch-name) "..HEAD"))
       u/split-on-newline))
 
@@ -101,6 +136,9 @@
   (u/bash "git commit --quiet --no-verify --allow-empty -m"
           message))
 
+(defn push []
+  (u/bash "git push"))
+
 ;;;; ___________________________________________________________________________
 
 (defn run-some-testy-stuff [remote-name-from-command-line
@@ -109,10 +147,16 @@
   (println "________________________________________")
   (println (gstring/format "remote-name-from-command-line = \"%s\""
                            remote-name-from-command-line))
+  (println "(remote-names) =" (remote-names))
   (println (gstring/format "(remote-name)  = \"%s\""
                            (remote-name)))
-  (println "remote-location =" remote-location)
+  (println (gstring/format "remote-location = \"%s\"" remote-location))
   (println (gstring/format "push-info = %s" push-info))
+  (println (gstring/format "(->sha \"HEAD\") = \"%s\"" (->sha "HEAD")))
+  (println (gstring/format "(range->shas \"HEAD~3\" \"HEAD\") = %s" (range->shas "HEAD~3" "HEAD")))
+  (println "(unpushed-commit-shas \"origin\") =" (unpushed-commit-shas "origin"))
+  (println (gstring/format "(unpushed-commit-names \"origin\") = %s"
+                           (unpushed-commit-names "origin")))
   (println (gstring/format "branch-name = \"%s\""
                            (branch-name)))
   (println (gstring/format "top-stash-name = \"%s\""

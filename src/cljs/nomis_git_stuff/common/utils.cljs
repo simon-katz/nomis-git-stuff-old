@@ -8,6 +8,10 @@
             [planck.io :as io]
             [planck.shell :as shell]))
 
+(defn err-println [& args]
+  (binding [*print-fn* *print-err-fn*]
+    (apply println args)))
+
 (defn exit-with-error
   ([msg]
    (exit-with-error msg 1))

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+if [ ! -f .git/_nomis-in-pre-push-wrapper ]; then
+    >&2 echo 'ERROR: The pre-push hook says: Instead of `git push`, you need to use the push wrapper script. See the docs.'
+    exit 1
+fi
