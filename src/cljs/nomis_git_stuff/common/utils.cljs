@@ -9,7 +9,7 @@
             [planck.shell :as shell]))
 
 (defn err-println [& args]
-  (binding [*print-fn* *print-err-fn*]
+  (binding [*print-fn* *print-err-fn*] ; TODO Can you use `*out*` instead of `*print-fn*`? (You had that somewhere.)
     (apply println args)))
 
 (defn exit-with-error

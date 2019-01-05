@@ -136,8 +136,12 @@
   (u/bash "git commit --quiet --no-verify --allow-empty -m"
           message))
 
-(defn push []
-  (u/bash "git push"))
+(defn commit--quiet--no-verify--allow-empty-v2 [& args]
+  (apply u/bash "git commit --quiet --no-verify --allow-empty"
+         args))
+
+(defn push [& args]
+  (apply u/bash "git push" args))
 
 ;;;; ___________________________________________________________________________
 
